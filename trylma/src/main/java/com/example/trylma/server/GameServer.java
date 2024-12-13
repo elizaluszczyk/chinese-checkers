@@ -56,4 +56,19 @@ public class GameServer {
             System.err.println("Server error: " + e.getMessage());
         }
     }
+
+    public static synchronized void broadcastMessage(String message, ClientHandler sender) {
+        String formattedMessage = (sender != null && sender.getPlayer() != null)
+        ? sender.getPlayer().getUsername() + ": " + message
+        : message;
+
+        for (ClientHandler client : clientHandlers) {
+            if (client != sender) { 
+                // add logic 
+                client.transmitMessage(formattedMessage);
+            }
+        }
+
+
+    }
 }
