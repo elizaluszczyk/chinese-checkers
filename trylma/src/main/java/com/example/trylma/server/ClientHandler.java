@@ -56,6 +56,26 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
-        
+        try {
+            while (true) {
+                String message = reader.readLine();
+                if (message == null) {
+                    break;
+                }
+                GameServer.broadcastMessage(message, this);
+            }
+        } catch (IOException e) {
+            System.err.println("Connection lost with client: " + e.getMessage());
+        } finally {
+            GameServer.clientHandlers.remove(this);
+            if (player != null) {
+                GameServer.broadcastMessage(player.getUsername() + " has left the game.", null);
+            }
+            try {
+                clientSocket.close();
+            } catch (IOException e) {
+                System.err.println("Failed to close client socket: " + e.getMessage());
+            }
+        }
     }
 }
