@@ -1,6 +1,5 @@
-package com.example.chinese_checkers.interfaces;
-
-import com.example.chinese_checkers.board.Position;
+package com.example.trylma.interfaces;
+import com.example.trylma.board.Position;
 
 public interface Move {
 
