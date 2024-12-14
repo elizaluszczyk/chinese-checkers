@@ -1,4 +1,4 @@
-package com.example.chinese_checkers.interfaces;
+package com.example.trylma.interfaces;
 
 
 public interface Board {
