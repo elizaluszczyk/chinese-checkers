@@ -6,11 +6,19 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 import com.example.trylma.GamePlayer;
+import com.example.trylma.exceptions.InvalidMoveException;
+import com.example.trylma.game.Move;
+import com.example.trylma.interfaces.GameManager;
+import com.example.trylma.interfaces.MoveParser;
+import com.example.trylma.interfaces.Player;
+import com.example.trylma.packets.BoardUpdatePacket;
+import com.example.trylma.parsers.StandardMoveParser;;
 
 public class GameServer {
     private final int port;
     private static int numberOfPlayers = 0;
     protected static final ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
+    protected static GameManager gameManager;
 
     public GameServer(int port) {
         this.port = port;
@@ -48,7 +56,7 @@ public class GameServer {
 
                 if (clientHandlers.size() == numberOfPlayers) {
                     System.out.println("All players are in the game!");
-                    // add a method to send messages between players
+                    broadcastMessage("The game is starting!", null);
                     break;
                 }
             }
@@ -62,9 +70,33 @@ public class GameServer {
         ? sender.getPlayer().getUsername() + ": " + message
         : message;
 
+        // MOVE x1,y1 TO x2,y2
+        if (message.startsWith("MOVE")) {
+            MoveParser parser = new StandardMoveParser();
+            try {
+               Move move = parser.parseMove(message);
+                
+                if (gameManager != null) {
+                    if (sender != null) {
+                        Player currentPlayer = sender.getPlayer();
+                        gameManager.getBoard().addMoveTakenByPlayer(currentPlayer, move);
+                    }
+                }
+
+                for (ClientHandler client : clientHandlers) {
+                    client.transmitPacket(new BoardUpdatePacket(gameManager.getBoard()));
+                }
+                
+            } catch (InvalidMoveException e) {
+                System.err.println("Error processing move: " + e.getMessage());
+                if (sender != null) {
+                    sender.transmitMessage("Invalid move format. Please try again.");
+            }
+            }
+        }
+
         for (ClientHandler client : clientHandlers) {
             if (client != sender) { 
-                // add logic 
                 client.transmitMessage(formattedMessage);
             }
         }
