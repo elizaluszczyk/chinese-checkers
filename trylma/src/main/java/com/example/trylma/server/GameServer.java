@@ -95,6 +95,9 @@ public class GameServer {
                         gameManager.getBoard().addMoveTakenByPlayer(currentPlayer, move);
                     }
                 }
+                
+                System.out.println("Broadcasting board state...");
+                System.out.println("Moves on server: " + gameManager.getBoard().getMovesPerformedByPlayers());
 
                 for (ClientHandler client : clientHandlers) {
                     client.transmitPacket(new BoardUpdatePacket(gameManager.getBoard()));
