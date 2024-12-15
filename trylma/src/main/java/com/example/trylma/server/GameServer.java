@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import com.example.trylma.GamePlayer;
 import com.example.trylma.exceptions.InvalidMoveException;
 import com.example.trylma.game.Move;
+import com.example.trylma.game.StandardGameManager;
 import com.example.trylma.interfaces.GameManager;
 import com.example.trylma.interfaces.MoveParser;
 import com.example.trylma.interfaces.Player;
@@ -50,6 +51,14 @@ public class GameServer {
                         break;
                     }
                     clientHandler.transmitMessage("Number of players set to: " + numberOfPlayers);
+
+                    clientHandler.transmitMessage("Choose game variant (default):");
+                    String gameType = clientHandler.receiveMessage();
+                    initializeGame(gameType);
+                    clientHandler.transmitMessage("You selected the game variant: " + gameType);
+                } else {
+                    clientHandler.transmitMessage("The game variant has already been chosen. Joining the game...");
+                    
                 }
 
                 new Thread(clientHandler).start();
@@ -63,6 +72,10 @@ public class GameServer {
         } catch (IOException e) {
             System.err.println("Server error: " + e.getMessage());
         }
+    }
+
+    private void initializeGame(String gameType) { 
+        gameManager = new StandardGameManager(gameType, numberOfPlayers);
     }
 
     public static synchronized void broadcastMessage(String message, ClientHandler sender) {
