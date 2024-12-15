@@ -8,13 +8,13 @@ public class StandardMoveParser implements MoveParser {
 
     @Override
     public Move parseMove(String message) throws InvalidMoveException {
-        if (!message.startsWith("move")) {
-            throw new InvalidMoveException("Invalid move format. Move should start with 'move'.");
+        if (!message.startsWith("MOVE")) {
+            throw new InvalidMoveException("Invalid move format. Move should start with 'MOVE'.");
         }
         try {
             String[] parts = message.split(" ");
-            if (parts.length != 4 || !parts[2].equalsIgnoreCase("to")) {
-                throw new InvalidMoveException("Invalid move format. Expected: 'move x1,y1 to x2,y2'.");
+            if (parts.length != 4 || !parts[2].equalsIgnoreCase("TO")) {
+                throw new InvalidMoveException("Invalid move format. Expected: 'MOVE x1,y1 TO x2,y2'.");
             }
 
             String[] startPosition = parts[1].split(",");
@@ -27,7 +27,7 @@ public class StandardMoveParser implements MoveParser {
 
             return new Move(x1, y1, x2, y2);
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-            throw new InvalidMoveException("Invalid move coordinates. Ensure the format is 'x1,y1 to x2,y2'.");
+            throw new InvalidMoveException("Invalid move coordinates. Ensure the format is 'x1,y1 TO x2,y2'.");
         }
     }
     
