@@ -1,10 +1,8 @@
 package com.example.trylma.interfaces;
-import com.example.trylma.board.Position;
 
-public interface Move {
+public interface MoveParser {
 
-    Position getStartPosition();
-    Position getEndPosition();
-    void executeMove(Board board);
-    boolean isValidMove(Board board);
+public interface MoveParser {
+    Move parseMove(String message) throws Exception;
+
 }
