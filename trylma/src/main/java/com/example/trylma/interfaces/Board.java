@@ -1,16 +1,10 @@
-package com.example.chinese_checkers.interfaces;
+package com.example.trylma.interfaces;
 
 
 public interface Board {
-
-    void initializeBoard();
-
-    void setPosition(int row, int col, String value);
-
-    String getPosition(int row, int col);
-
-    void displayBoard();
-
-    void addPlayer(Player player);
+    public ArrayList<ArrayList<Pawn>> getBoard();
+    public void addMoveTakenByPlayer(Player player, Move move);
+    public boolean isInBoard(int x, int y)
+    public ArrayList<String> getMovesPerformedByPlayers();
 
 }

@@ -1,0 +1,9 @@
+package com.example.trylma.interfaces;
+
+public interface Field {
+    boolean isInBoard();
+    void setPawn(Pawn pawn);
+    Pawn getPawn();
+    void setIsInBoard(boolean isInBoard);
+
+}
