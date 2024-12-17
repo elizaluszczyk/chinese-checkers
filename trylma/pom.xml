@@ -3,11 +3,11 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.example.chinese_checkers</groupId>
-  <artifactId>chinese_checkers</artifactId>
+  <groupId>com.example.trylma</groupId>
+  <artifactId>trylma</artifactId>
   <version>1.0-SNAPSHOT</version>
 
-  <name>chinese_checkers</name>
+  <name>trylma</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
