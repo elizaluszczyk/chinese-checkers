@@ -3,6 +3,8 @@ package com.example.trylma.game;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import com.example.trylma.board.Move;
+import com.example.trylma.board.Pawn;
 import com.example.trylma.interfaces.Board;
 import com.example.trylma.interfaces.Player;
 
@@ -16,7 +18,6 @@ public class DefaultChineseCheckersBoard implements Board, Serializable {
     public DefaultChineseCheckersBoard(int numberOfPlayers) {
         this.board = new ArrayList<>();
         this.movesPerformedByPlayers = new ArrayList<>();
-
     }
 
     @Override

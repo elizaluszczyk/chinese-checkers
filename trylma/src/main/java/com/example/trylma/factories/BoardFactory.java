@@ -1,4 +1,4 @@
-package com.example.trylma.board;
+package com.example.trylma.factories;
 
 import com.example.trylma.game.DefaultChineseCheckersBoard;
 import com.example.trylma.interfaces.Board;;

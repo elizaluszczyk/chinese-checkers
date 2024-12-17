@@ -1,7 +1,7 @@
 package com.example.trylma.parsers;
 
+import com.example.trylma.board.Move;
 import com.example.trylma.exceptions.InvalidMoveException;
-import com.example.trylma.game.Move;
 import com.example.trylma.interfaces.MoveParser;
 
 public class StandardMoveParser implements MoveParser {

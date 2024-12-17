@@ -1,4 +1,4 @@
-package com.example.trylma;
+package com.example.trylma.game;
 
 import com.example.trylma.interfaces.Player;
 

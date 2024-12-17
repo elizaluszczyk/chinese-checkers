@@ -6,8 +6,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import com.example.trylma.GamePlayer;
-import com.example.trylma.ServerPacket;
+import com.example.trylma.game.GamePlayer;
 import com.example.trylma.packets.TextMessagePacket;
 
 public class ClientHandler implements Runnable {

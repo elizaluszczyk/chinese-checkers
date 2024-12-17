@@ -2,8 +2,8 @@ package com.example.trylma.packets;
 
 import java.util.ArrayList;
 
-import com.example.trylma.ServerPacket;
 import com.example.trylma.interfaces.Board;
+import com.example.trylma.server.ServerPacket;
 
 public class BoardUpdatePacket implements ServerPacket {
     private final Board board;

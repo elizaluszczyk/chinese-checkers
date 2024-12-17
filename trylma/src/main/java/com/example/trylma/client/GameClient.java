@@ -1,10 +1,16 @@
 package com.example.trylma.client;
 
-import com.example.chinese_checkers.ServerPacket;
-import com.example.chinese_checkers.packet.TextMessagePacket;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
+
+import com.example.trylma.interfaces.Board;
+import com.example.trylma.packets.BoardUpdatePacket;
+import com.example.trylma.packets.TextMessagePacket;
+import com.example.trylma.server.ServerPacket;
 
 public class GameClient {
     private final String serverAddress;
@@ -24,14 +30,14 @@ public class GameClient {
             System.out.println("Connected to server: " + serverAddress + ":" + port);
 
             Thread receiveThread = new Thread(() -> {
-                try {
-                    while (true) {
-                        ServerPacket serverPacket = (ServerPacket)objectInputStream.readObject();
-                        System.out.println(serverPacket);
-                    }
-                } catch (IOException | ClassNotFoundException e) {
-                    System.err.println("Connection to server lost: " + e.getMessage());
-                }
+               try {
+                   while (true) { 
+                       ServerPacket serverPacket = (ServerPacket) objectInputStream.readObject(); 
+                       handlePacket(serverPacket);
+                   }
+               } catch (IOException | ClassNotFoundException e) {
+                System.err.println("Connection to server lost: " + e.getMessage());
+               }
             });
             receiveThread.start();
 
@@ -48,7 +54,6 @@ public class GameClient {
         } catch (IOException e) {
             System.err.println("Error connecting to server: " + e.getMessage());
         }
-
     }
 
     private void handlePacket(ServerPacket packet) {
@@ -60,29 +65,18 @@ public class GameClient {
             System.err.println("Unknown packet type received.");
         }
     }
+
     private void handleTextMessage(TextMessagePacket packet) {
         String message = packet.getMessageString();
         System.out.println("Received text message: " + message);
     }
+
     private void handleBoardUpdate(BoardUpdatePacket packet) {
-        System.out.println("Received board update: " + packet.getBoard());
-
         Board board = packet.getBoard();
+        System.out.println("Received board update: " + board);
 
-        for (int row_index = 0; row_index < board.getBoard().size(); row_index++) {
-            for (int column_index = 0; column_index < board.getBoard().get(row_index).size(); column_index++) {
-                if (!board.isInBoard(row_index, column_index)) continue;
-
-                if (board.getBoard().get(row_index).get(column_index) == null)
-                {
-                    System.out.print("0 ");
-                    continue;
-                }
-
-                System.out.print("x ");
-            }
-
-            System.out.print("\n");
+        for (String move : packet.getMovedPerformedByPlayers()) {
+            System.out.println("Moves: " + move);
         }
     }
 }

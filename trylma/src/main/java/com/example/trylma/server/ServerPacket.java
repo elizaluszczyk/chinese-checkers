@@ -1,4 +1,4 @@
-package com.example.trylma;
+package com.example.trylma.server;
 
 import java.io.Serializable;
 

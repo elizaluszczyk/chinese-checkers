@@ -5,9 +5,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import com.example.trylma.GamePlayer;
+import com.example.trylma.board.Move;
 import com.example.trylma.exceptions.InvalidMoveException;
-import com.example.trylma.game.Move;
+import com.example.trylma.game.GamePlayer;
 import com.example.trylma.game.StandardGameManager;
 import com.example.trylma.interfaces.GameManager;
 import com.example.trylma.interfaces.MoveParser;
@@ -116,7 +116,5 @@ public class GameServer {
                 client.transmitMessage(formattedMessage);
             }
         }
-
-
     }
 }

@@ -1,4 +1,4 @@
-package com.example.trylma.game;
+package com.example.trylma.board;
 
 public class Move {
     private final int startX;
