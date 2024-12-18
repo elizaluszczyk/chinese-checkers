@@ -31,7 +31,7 @@ Projekt został napisany w języku Java z podziałem na logiczne komponenty:
 
 ## Instalacja
  **Sklonuj repozytorium**:
-   git clone https://github.com/twoje-repo/chinese-checkers.git
+   git clone https://github.com/elizaluszczyk/trylma.git
 
 ## Instrukcja obsługi
 - Uruchom serwer komendą: mvn exec:java -Dexec.args="server"
