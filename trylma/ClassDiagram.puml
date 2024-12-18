@@ -1,0 +1,121 @@
+@startuml
+
+package "Game" {
+    class GameClient {
+        - serverAddress: String
+        - port: int
+        + start(): void
+        - handlePacket(packet: ServerPacket): void
+        - handleTextMessage(packet: TextMessagePacket): void
+        - handleBoardUpdate(packet: BoardUpdatePacket): void
+    }
+
+    class GameServer {
+        - port: int
+        - numberOfPlayers: int
+        - clientHandlers: ArrayList<ClientHandler>
+        - gameManager: GameManager
+        + start(): void
+        - initializeGame(gameType: String): void
+        + broadcastMessage(message: String, sender: ClientHandler): void
+    }
+
+    class ClientHandler {
+        - clientSocket: Socket
+        - reader: BufferedReader
+        - objectOutputStream: ObjectOutputStream
+        - player: GamePlayer
+        + setPlayer(player: GamePlayer): void
+        + getPlayer(): GamePlayer
+        + receiveMessage(): String
+        + transmitMessage(message: String): void
+        + transmitPacket(packet: ServerPacket): void
+        + run(): void
+    }
+
+    class GamePlayer {
+        - username: String
+        + getUsername(): String
+    }
+
+    class StandardGameManager {
+        - board: Board
+        + getBoard(): Board
+    }
+
+    class BoardFactory {
+        + createBoard(gameType: String, numberOfPlayers: int): Board
+    }
+
+    class DefaultChineseCheckersBoard {
+        - board: ArrayList<ArrayList<Pawn>>
+        - movesPerformedByPlayers: ArrayList<String>
+        + getBoard(): ArrayList<ArrayList<Pawn>>
+        + addMoveTakenByPlayer(player: Player, move: Move): void
+        + isInBoard(x: int, y: int): boolean
+        + getMovesPerformedByPlayers(): ArrayList<String>
+    }
+
+    class BoardUpdatePacket {
+        - board: Board
+        - movedPerformedByPlayers: ArrayList<String>
+        + getBoard(): Board
+        + getMovedPerformedByPlayers(): ArrayList<String>
+    }
+
+    class TextMessagePacket {
+        - messageString: String
+        + getMessageString(): String
+    }
+
+    class StandardMoveParser {
+        + parseMove(message: String): Move
+    }
+
+    class Move {
+        - startX: int
+        - startY: int
+        - endX: int
+        - endY: int
+        + getStartX(): int
+        + getStartY(): int
+        + getEndX(): int
+        + getEndY(): int
+    }
+
+    interface Board {
+        + getBoard(): ArrayList<ArrayList<Pawn>>
+        + addMoveTakenByPlayer(player: Player, move: Move): void
+        + isInBoard(x: int, y: int): boolean
+        + getMovesPerformedByPlayers(): ArrayList<String>
+    }
+
+    interface GameManager {
+        + getBoard(): Board
+    }
+
+    interface ServerPacket {
+    }
+
+    interface Player {
+        + getUsername(): String
+    }
+
+    interface MoveParser {
+        + parseMove(message: String): Move
+    }
+}
+
+' Relationships
+GameClient --> GameServer : communicates with
+GameServer --> ClientHandler : manages
+GameServer --> GameManager : uses
+GameServer --> Board : uses
+ClientHandler --> GamePlayer : has
+DefaultChineseCheckersBoard --> Board : implements
+BoardUpdatePacket --> Board : contains
+TextMessagePacket --> GameClient : sent by
+StandardMoveParser --> MoveParser : implements
+MoveParser --> Move : returns
+
+@enduml
