@@ -6,14 +6,11 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 import com.example.trylma.board.Move;
-import com.example.trylma.exceptions.InvalidMoveException;
 import com.example.trylma.game.GamePlayer;
 import com.example.trylma.game.StandardGameManager;
 import com.example.trylma.interfaces.GameManager;
-import com.example.trylma.interfaces.MoveParser;
-import com.example.trylma.interfaces.Player;
-import com.example.trylma.packets.BoardUpdatePacket;
-import com.example.trylma.parsers.StandardMoveParser;;
+import com.example.trylma.packets.TextMessagePacket;
+;
 
 public class GameServer {
     private final int port;
@@ -37,7 +34,7 @@ public class GameServer {
                 clientHandlers.add(clientHandler);
 
                 clientHandler.transmitMessage("Enter your username:");
-                String username = clientHandler.receiveMessage();
+                String username = waitForTextMessage(clientHandler);
                 clientHandler.setPlayer(new GamePlayer(username));
 
                 System.out.println("Client connected: " + username);
@@ -45,7 +42,7 @@ public class GameServer {
                 if (clientHandlers.size() == 1) {
                     // ask about game type first if different number of players
                     clientHandler.transmitMessage("Enter the number of players (2,3,4 or 6):");
-                    numberOfPlayers = Integer.parseInt(clientHandler.receiveMessage());
+                    numberOfPlayers = Integer.parseInt(waitForTextMessage(clientHandler));
                     if (numberOfPlayers < 2 || numberOfPlayers == 5 || numberOfPlayers > 6) {
                         clientHandler.transmitMessage("Invalid number of players. Restart the server.");
                         break;
@@ -53,7 +50,7 @@ public class GameServer {
                     clientHandler.transmitMessage("Number of players set to: " + numberOfPlayers);
 
                     clientHandler.transmitMessage("Choose game variant (default):");
-                    String gameType = clientHandler.receiveMessage();
+                    String gameType = waitForTextMessage(clientHandler);
                     initializeGame(gameType);
                     clientHandler.transmitMessage("You selected the game variant: " + gameType);
                 } else {
@@ -76,6 +73,16 @@ public class GameServer {
 
     private void initializeGame(String gameType) { 
         gameManager = new StandardGameManager(gameType, numberOfPlayers);
+    }
+
+    private String waitForTextMessage(ClientHandler clientHandler) {
+        try {
+            TextMessagePacket packet = clientHandler.receiveTextMessage();
+            return packet.getMessageString();
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error receiving text message: " + e.getMessage());
+        }
+        return null;
     }
 
     public static synchronized void broadcastMessage(String message, ClientHandler sender) {
