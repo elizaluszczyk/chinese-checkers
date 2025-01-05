@@ -1,6 +1,8 @@
 package com.example.trylma.board;
 
-public class Move {
+import java.io.Serializable;
+
+public class Move implements Serializable {
     private final int startX;
     private final int startY;
     private final int endX;
