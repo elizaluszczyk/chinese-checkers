@@ -11,6 +11,9 @@ public class BoardFactory {
                 case 2 -> {
                     return new DefaultChineseCheckersBoard(2);
                 }
+                case 3 -> {
+                    return new DefaultChineseCheckersBoard(3);
+                }
                 case 4 -> {
                     return new DefaultChineseCheckersBoard(4);
                 }
