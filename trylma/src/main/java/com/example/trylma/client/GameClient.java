@@ -96,10 +96,6 @@ public class GameClient {
     private void handleBoardUpdate(BoardUpdatePacket packet) {
         Board board = packet.getBoard();
         System.out.println("Received board update: " + board);
-
-        for (String move : packet.getMovedPerformedByPlayers()) {
-            System.out.println("Moves: " + move);
-        }
     }
 
     private void handleMove(MovePacket packet) {
