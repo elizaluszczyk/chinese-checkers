@@ -90,38 +90,23 @@ public class GameServer {
         ? sender.getPlayer().getUsername() + ": " + message
         : message;
 
-        // MOVE x1,y1 TO x2,y2
-        if (message.startsWith("MOVE")) {
-            MoveParser parser = new StandardMoveParser();
-            try {
-               Move move = parser.parseMove(message);
-                
-                if (gameManager != null) {
-                    if (sender != null) {
-                        Player currentPlayer = sender.getPlayer();
-                        gameManager.getBoard().addMoveTakenByPlayer(currentPlayer, move);
-                    }
-                }
-                
-                System.out.println("Broadcasting board state...");
-                System.out.println("Moves on server: " + gameManager.getBoard().getMovesPerformedByPlayers());
-
-                for (ClientHandler client : clientHandlers) {
-                    client.transmitPacket(new BoardUpdatePacket(gameManager.getBoard()));
-                }
-                
-            } catch (InvalidMoveException e) {
-                System.err.println("Error processing move: " + e.getMessage());
-                if (sender != null) {
-                    sender.transmitMessage("Invalid move format. Please try again.");
-            }
-            }
-        }
-
         for (ClientHandler client : clientHandlers) {
             if (client != sender) { 
                 client.transmitMessage(formattedMessage);
             }
+        }
+    }
+
+    public static synchronized void broadcastMoveAndBoardUpdate(Move move, ClientHandler sender) {
+        for (ClientHandler client : clientHandlers) {
+                client.transmitMove(move);
+                client.transmitBoardUpdate(gameManager.getBoard());
+        }
+    }
+
+    public static synchronized void broadcastInvalidMove(Move invalidMove, ClientHandler sender) {
+        for (ClientHandler client : clientHandlers) {
+                client.transmitInvalidMove(invalidMove);
         }
     }
 }
