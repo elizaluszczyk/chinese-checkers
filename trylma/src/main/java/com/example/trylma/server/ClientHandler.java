@@ -33,9 +33,15 @@ public class ClientHandler implements Runnable {
         return player;
     }
 
-    public String receiveMessage() throws IOException {
-        return reader.readLine();
-    }
+    public TextMessagePacket receiveTextMessage() throws IOException, ClassNotFoundException {
+        Object received = objectInputStream.readObject();
+        if (received instanceof TextMessagePacket packet) {
+            handleTextMessage(packet);
+            return packet;
+        } else {
+            throw new ClassNotFoundException("Unexpected packet type: " + received.getClass().getName());
+        }
+    }    
 
     public void transmitMessage(String message) {
         transmitPacket(new TextMessagePacket(message));
