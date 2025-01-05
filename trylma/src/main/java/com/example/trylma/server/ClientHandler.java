@@ -47,8 +47,21 @@ public class ClientHandler implements Runnable {
         transmitPacket(new TextMessagePacket(message));
     }
 
+    public void transmitMove(Move move) {
+        transmitPacket(new MovePacket(move));
+    }
+
+    public void transmitBoardUpdate(Board board) {
+        transmitPacket(new BoardUpdatePacket(board));
+    }
+
+    public void transmitInvalidMove(Move invalidMove) {
+        transmitPacket(new InvalidMovePacket(invalidMove));
+    }
+
     public void transmitPacket(ServerPacket packet) {
         try {
+        System.out.println("Sending packet: " + packet.getClass().getName());
            objectOutputStream.writeObject(packet);
            objectOutputStream.flush();
         } catch (IOException e) {
