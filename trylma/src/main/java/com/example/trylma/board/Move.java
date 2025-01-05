@@ -30,4 +30,9 @@ public class Move implements Serializable {
     public int getEndY() {
         return endY;
     }
+
+    @Override
+    public String toString() {
+        return "MOVE " + startX + "," + startY + " TO " + endX + "," + endY;
+    }
 }
