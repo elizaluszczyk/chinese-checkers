@@ -8,6 +8,7 @@ import java.net.Socket;
 import com.example.trylma.board.Move;
 import com.example.trylma.game.GamePlayer;
 import com.example.trylma.interfaces.Board;
+import com.example.trylma.interfaces.GameManager;
 import com.example.trylma.packets.BoardUpdatePacket;
 import com.example.trylma.packets.InvalidMovePacket;
 import com.example.trylma.packets.MovePacket;
@@ -18,6 +19,7 @@ public class ClientHandler implements Runnable {
     private final ObjectOutputStream objectOutputStream;
     private final ObjectInputStream objectInputStream;
     private GamePlayer player;
+    private GameManager gameManager;
 
     public ClientHandler(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
@@ -82,11 +84,27 @@ public class ClientHandler implements Runnable {
     private void handleTextMessage(TextMessagePacket packet) {
         String message = packet.getMessageString();
         System.out.println("Received text message: " + message);
+        GameServer.broadcastMessage(message, this);
     }
 
     private void handleMove(MovePacket packet) {
         Move move = packet.getMove();
         System.out.println("Received move: " + move);
+
+        gameManager = GameManagerSingleton.getInstance();
+
+        if (gameManager.isMoveValid(move)) {
+            gameManager.applyMove(move);
+
+            GameServer.broadcastMove(move, this);
+            
+            Board updatedBoard = gameManager.getBoard();
+            GameServer.broadcastBoardUpdate(updatedBoard, this);
+            
+        }
+        else {
+            GameServer.broadcastInvalidMove(move, this);
+        }
     }
 
     @Override
