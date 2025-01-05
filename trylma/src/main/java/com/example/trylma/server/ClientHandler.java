@@ -1,24 +1,28 @@
 package com.example.trylma.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import com.example.trylma.board.Move;
 import com.example.trylma.game.GamePlayer;
+import com.example.trylma.interfaces.Board;
+import com.example.trylma.packets.BoardUpdatePacket;
+import com.example.trylma.packets.InvalidMovePacket;
+import com.example.trylma.packets.MovePacket;
 import com.example.trylma.packets.TextMessagePacket;
 
 public class ClientHandler implements Runnable {
     private final Socket clientSocket;
-    private final BufferedReader reader;
     private final ObjectOutputStream objectOutputStream;
+    private final ObjectInputStream objectInputStream;
     private GamePlayer player;
 
     public ClientHandler(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
-        this.reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         this.objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
+        this.objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
     }
 
     public void setPlayer(GamePlayer player) {
@@ -46,18 +50,42 @@ public class ClientHandler implements Runnable {
         } 
     }
 
+    private void handlePacket(ServerPacket packet) {
+        if (packet instanceof TextMessagePacket textMessagePacket) {
+            handleTextMessage(textMessagePacket);
+        } else if (packet instanceof MovePacket movePacket) {
+            handleMove(movePacket);
+        } else {
+            System.err.println("Unknown packet type received.");
+        }
+    }
+    
+    private void handleTextMessage(TextMessagePacket packet) {
+        String message = packet.getMessageString();
+        System.out.println("Received text message: " + message);
+    }
+
+    private void handleMove(MovePacket packet) {
+        Move move = packet.getMove();
+        System.out.println("Received move: " + move);
+    }
+
     @Override
     public void run() {
         try {
             while (true) {
-                String message = reader.readLine();
-                if (message == null) {
-                    break;
+                Object received = objectInputStream.readObject();
+                System.out.println("Received object: " + received.getClass().getName());
+                if (received instanceof ServerPacket packet) {
+                    handlePacket(packet);
+                } else {
+                    System.err.println("Unexpected object type: " + received.getClass().getName());
                 }
-                GameServer.broadcastMessage(message, this);
             }
         } catch (IOException e) {
             System.err.println("Connection lost with client: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            System.err.println(e.getMessage());
         } finally {
             GameServer.clientHandlers.remove(this);
             if (player != null) {
