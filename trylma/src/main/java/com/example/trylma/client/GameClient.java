@@ -73,29 +73,20 @@ public class GameClient {
             System.err.println("Error connecting to server: " + e.getMessage());
         }
     }
-
-    private void handlePacket(ServerPacket packet) throws IOException {
-        if (packet instanceof TextMessagePacket textMessagePacket) {
-            handleTextMessage(textMessagePacket);
-        } else if (packet instanceof BoardUpdatePacket boardUpdatePacket) {
-            handleBoardUpdate(boardUpdatePacket);
-        } else if (packet instanceof RequestUsernamePacket requestUsernamePacket) {
-            handleRequestUsername(requestUsernamePacket);
-        } else if (packet instanceof RequestGameSettingsPacket requestGameSettingsPacket) {
-            handleRequestGameSettings(requestGameSettingsPacket);
-        } else {
-            System.err.println("Unknown packet type received.");
-        }
-    }
-
-    private void handleTextMessage(TextMessagePacket packet) {
-        String message = packet.getMessageString();
-        System.out.println("Received text message: " + message);
-    }
-
-    private void handleBoardUpdate(BoardUpdatePacket packet) {
-        Board board = packet.getBoard();
-        System.out.println("Received board update: " + board);
+    
+    public void getInputFromPlayer(String prompt) {
+        try {
+            BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
+            System.out.print(prompt);
+            String input = consoleReader.readLine();
+            if (input == null) {
+                System.err.println("Input stream closed. No more input available.");
+                return;
+            }
+            this.queue.add(input);
+        } catch (IOException e) {
+            System.err.println("Error reading input: " + e.getMessage());
+        } 
     }
 
     /*
@@ -127,7 +118,7 @@ public class GameClient {
             }
             GameSettingsPacket gameSettingsPacket = new GameSettingsPacket(numberOfPlayers, gameTypeString);
             sendPacketToServer(gameSettingsPacket, objectOutputStream);
-
+            
             this.waitingForGameSettings = false;
         }
         try {
@@ -139,9 +130,48 @@ public class GameClient {
         } catch (InvalidMoveException e) {
             System.err.println("Invalid input: " + e.getMessage());
         } catch (NoSuchElementException e) {
-
+            System.err.println("Missing element:" + e.getMessage());
         }
+    }
+    
+    private void sendPacketToServer(ServerPacket packet, ObjectOutputStream objectOutputStream) {
+        try {
+            objectOutputStream.writeObject(packet);
+            objectOutputStream.flush();
+        } catch (IOException e) {
+            System.err.println("Error sending packet to server: " + e.getMessage());
+        }
+    }
+    
+    private ServerPacket parseInput(String input) throws InvalidMoveException {
+        if (input.startsWith("MOVE")) {
+            return new MovePacket(moveParser.parseMove(input));
+        }
+        return new TextMessagePacket(input);
+    }
+    
+    private void handlePacket(ServerPacket packet) throws IOException {
+        if (packet instanceof TextMessagePacket textMessagePacket) {
+            handleTextMessage(textMessagePacket);
+        } else if (packet instanceof BoardUpdatePacket boardUpdatePacket) {
+            handleBoardUpdate(boardUpdatePacket);
+        } else if (packet instanceof RequestUsernamePacket requestUsernamePacket) {
+            handleRequestUsername(requestUsernamePacket);
+        } else if (packet instanceof RequestGameSettingsPacket requestGameSettingsPacket) {
+            handleRequestGameSettings(requestGameSettingsPacket);
+        } else {
+            System.err.println("Unknown packet type received.");
+        }
+    }
 
+    private void handleTextMessage(TextMessagePacket packet) {
+        String message = packet.getMessageString();
+        System.out.println("Received text message: " + message);
+    }
+
+    private void handleBoardUpdate(BoardUpdatePacket packet) {
+        Board board = packet.getBoard();
+        System.out.println("Received board update: " + board);
     }
 
     private void handleRequestUsername(RequestUsernamePacket packet) throws IOException {
@@ -163,37 +193,5 @@ public class GameClient {
         System.out.println(gameTypeMessage);
 
         this.waitingForGameSettings = true;
-    }
-
-    public void getInputFromPlayer(String prompt) {
-        try {
-            BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
-            System.out.print(prompt);
-            String input = consoleReader.readLine();
-            if (input == null) {
-                System.err.println("Input stream closed. No more input available.");
-                return;
-            }
-            this.queue.add(input);
-        } catch (IOException e) {
-            System.err.println("Error reading input: " + e.getMessage());
-        } 
-    }
-
-    private void sendPacketToServer(ServerPacket packet, ObjectOutputStream objectOutputStream) {
-        try {
-            objectOutputStream.writeObject(packet);
-            objectOutputStream.flush();
-        } catch (IOException e) {
-            System.err.println("Error sending packet to server: " + e.getMessage());
-        }
-    }
-
-    private ServerPacket parseInput(String input) throws InvalidMoveException {
-        if (input.startsWith("MOVE")) {
-            return new MovePacket(moveParser.parseMove(input));
-        }
-
-        return new TextMessagePacket(input);
     }
 }
