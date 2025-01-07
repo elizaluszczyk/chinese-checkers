@@ -26,9 +26,7 @@ public class GameClient {
     private final String serverAddress;
     private final int port;
     private final StandardMoveParser moveParser = new StandardMoveParser();
-    
     private final Queue<String> queue = new LinkedList<>();
-
     private boolean waitingForUsername = false;
     private boolean waitingForGameSettings = false;
 

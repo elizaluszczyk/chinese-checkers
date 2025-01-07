@@ -29,11 +29,6 @@ public class GameServer {
 
                 ClientHandler clientHandler = new ClientHandler(clientSocket);
                 new Thread(clientHandler).start();
-                // if (clientHandlers.size() == numberOfPlayers) {
-                //     System.out.println("All players are in the game!");
-                //     broadcastMessage("The game is starting!", null);
-                //     break;
-                // }
             }
         } catch (IOException e) {
             System.err.println("Server error: " + e.getMessage());
