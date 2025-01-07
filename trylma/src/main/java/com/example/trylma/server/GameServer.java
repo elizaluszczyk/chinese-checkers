@@ -48,14 +48,13 @@ public class GameServer {
         GameServer.numberOfPlayers = numberOfPlayers;
     }
 
-    public static synchronized void broadcastMove(Move move, ClientHandler sender) {
+    public static synchronized void broadcastMessage(String message, ClientHandler sender) {
         String formattedMessage = (sender != null && sender.getPlayer() != null)
-        ? sender.getPlayer().getUsername() + " made a move: " + move.toString()
-        : "A move was made: " + move.toString();
+                ? sender.getPlayer().getUsername() + ": " + message
+                : message;
 
         for (ClientHandler client : clientHandlers) {
             if (client != sender) {
-                client.transmitMove(move);
                 client.transmitMessage(formattedMessage);
             }
         }
