@@ -6,13 +6,19 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.LinkedList;
+import java.util.NoSuchElementException;
+import java.util.Queue;
 
-import com.example.trylma.board.Move;
 import com.example.trylma.exceptions.InvalidMoveException;
 import com.example.trylma.interfaces.Board;
 import com.example.trylma.packets.BoardUpdatePacket;
+import com.example.trylma.packets.GameSettingsPacket;
 import com.example.trylma.packets.MovePacket;
+import com.example.trylma.packets.RequestGameSettingsPacket;
+import com.example.trylma.packets.RequestUsernamePacket;
 import com.example.trylma.packets.TextMessagePacket;
+import com.example.trylma.packets.UsernamePacket;
 import com.example.trylma.parsers.StandardMoveParser;
 import com.example.trylma.server.ServerPacket;
 
@@ -20,6 +26,11 @@ public class GameClient {
     private final String serverAddress;
     private final int port;
     private final StandardMoveParser moveParser = new StandardMoveParser();
+    
+    private final Queue<String> queue = new LinkedList<>();
+
+    private boolean waitingForUsername = false;
+    private boolean waitingForGameSettings = false;
 
     public GameClient(String serverAddress, int port) {
         this.serverAddress = serverAddress;
@@ -29,8 +40,7 @@ public class GameClient {
     public void start() {
         try (Socket socket = new Socket(serverAddress, port);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-            BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in))) {
+            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());) {
 
             System.out.println("Connected to server: " + serverAddress + ":" + port);
 
@@ -46,29 +56,19 @@ public class GameClient {
             });
             receiveThread.start();
 
-            System.out.println("You can send messages now (type 'exit' to quit):");
+            System.out.println("You can send messages now (type 'exit' to quit)");
             
             while (true) { 
-                String input = consoleReader.readLine();
-                if (input.equalsIgnoreCase("exit")) {
+                getInputFromPlayer("");
+                if (queue.peek() == null) {
+                    continue;
+                }
+                if (queue.peek().equalsIgnoreCase("exit")) {
                     System.out.println("Disconnecting...");
                     break;
                 }
 
-                try {
-                    Object parsedInput = parseInput(input);
-                    if (parsedInput instanceof Move move) {
-                        MovePacket movePacket = new MovePacket(move);
-                        objectOutputStream.writeObject(movePacket);  
-                    } else if (parsedInput instanceof String message) {
-                        TextMessagePacket textMessagePacket = new TextMessagePacket(message);
-                        objectOutputStream.writeObject(textMessagePacket);
-                    }
-
-                    objectOutputStream.flush();
-                } catch (InvalidMoveException e) {
-                    System.err.println("Invalid input: " + e.getMessage());
-                }
+                handleUserInput(objectOutputStream);
             }
 
         } catch (IOException e) {
@@ -76,13 +76,15 @@ public class GameClient {
         }
     }
 
-    private void handlePacket(ServerPacket packet) {
+    private void handlePacket(ServerPacket packet) throws IOException {
         if (packet instanceof TextMessagePacket textMessagePacket) {
             handleTextMessage(textMessagePacket);
         } else if (packet instanceof BoardUpdatePacket boardUpdatePacket) {
             handleBoardUpdate(boardUpdatePacket);
-        } else if (packet instanceof MovePacket movePacket) {
-            handleMove(movePacket);
+        } else if (packet instanceof RequestUsernamePacket requestUsernamePacket) {
+            handleRequestUsername(requestUsernamePacket);
+        } else if (packet instanceof RequestGameSettingsPacket requestGameSettingsPacket) {
+            handleRequestGameSettings(requestGameSettingsPacket);
         } else {
             System.err.println("Unknown packet type received.");
         }
@@ -98,16 +100,102 @@ public class GameClient {
         System.out.println("Received board update: " + board);
     }
 
-    private void handleMove(MovePacket packet) {
-        Move move = packet.getMove();
-        System.out.println("Received move: " + move);
-    }
+    /*
+     * Each time after a user inputs a string this method is called. It decides what to do with the string from the user
+     */
+    private void handleUserInput(ObjectOutputStream objectOutputStream) {
+        if (this.waitingForUsername)
+        {
+            String userInputString = queue.remove();
+            System.out.println("Ill send this input as a string message, since the flag is set");
+            UsernamePacket usernamePacket = new UsernamePacket(userInputString);
+            sendPacketToServer(usernamePacket, objectOutputStream);
+            this.waitingForUsername = false;
+            return;
+        } else if (this.waitingForGameSettings)
+        {
+            if (queue.size() < 2) return;
 
-    private Object parseInput(String input) throws InvalidMoveException {
-        if (input.startsWith("MOVE")) {
-            return moveParser.parseMove(input);
+            String numberOfPlayersString = queue.remove();
+            String gameTypeString = queue.remove();
+
+            int numberOfPlayers;
+
+            try {
+                numberOfPlayers = Integer.parseInt(numberOfPlayersString);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number of players, enter settings again");
+                return;
+            }
+            GameSettingsPacket gameSettingsPacket = new GameSettingsPacket(numberOfPlayers, gameTypeString);
+            sendPacketToServer(gameSettingsPacket, objectOutputStream);
+
+            this.waitingForGameSettings = false;
+        }
+        try {
+            String userInputString = queue.remove();
+            ServerPacket serverPacket = parseInput(userInputString);
+            if (serverPacket != null) {
+                sendPacketToServer(serverPacket, objectOutputStream);
+            }
+        } catch (InvalidMoveException e) {
+            System.err.println("Invalid input: " + e.getMessage());
+        } catch (NoSuchElementException e) {
+
         }
 
-        return input;
+    }
+
+    private void handleRequestUsername(RequestUsernamePacket packet) throws IOException {
+        if (this.waitingForUsername) return;
+        String message = packet.getMessage();
+        System.out.println("We be handling request username packet");
+        this.waitingForUsername = true;
+
+        System.out.print(message);
+    }
+
+    private void handleRequestGameSettings(RequestGameSettingsPacket packet) {
+        if (this.waitingForGameSettings) return;
+        String numberOfPlayersMessage = packet.getNumberOfPlayersMessage();
+
+        String gameTypeMessage = packet.getGameTypeMessage();
+
+        System.out.println(numberOfPlayersMessage);
+        System.out.println(gameTypeMessage);
+
+        this.waitingForGameSettings = true;
+    }
+
+    public void getInputFromPlayer(String prompt) {
+        try {
+            BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
+            System.out.print(prompt);
+            String input = consoleReader.readLine();
+            if (input == null) {
+                System.err.println("Input stream closed. No more input available.");
+                return;
+            }
+            this.queue.add(input);
+        } catch (IOException e) {
+            System.err.println("Error reading input: " + e.getMessage());
+        } 
+    }
+
+    private void sendPacketToServer(ServerPacket packet, ObjectOutputStream objectOutputStream) {
+        try {
+            objectOutputStream.writeObject(packet);
+            objectOutputStream.flush();
+        } catch (IOException e) {
+            System.err.println("Error sending packet to server: " + e.getMessage());
+        }
+    }
+
+    private ServerPacket parseInput(String input) throws InvalidMoveException {
+        if (input.startsWith("MOVE")) {
+            return new MovePacket(moveParser.parseMove(input));
+        }
+
+        return new TextMessagePacket(input);
     }
 }
