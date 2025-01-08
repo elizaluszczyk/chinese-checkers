@@ -1,6 +1,8 @@
 package com.example.trylma.board;
 
-public class Move {
+import java.io.Serializable;
+
+public class Move implements Serializable {
     private final int startX;
     private final int startY;
     private final int endX;
@@ -27,5 +29,10 @@ public class Move {
 
     public int getEndY() {
         return endY;
+    }
+
+    @Override
+    public String toString() {
+        return "MOVE " + startX + "," + startY + " TO " + endX + "," + endY;
     }
 }

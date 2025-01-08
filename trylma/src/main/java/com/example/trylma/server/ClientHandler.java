@@ -1,73 +1,207 @@
 package com.example.trylma.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.List;
 
+import com.example.trylma.board.Move;
+import com.example.trylma.exceptions.InvalidGameSettingsException;
 import com.example.trylma.game.GamePlayer;
+import com.example.trylma.game.StandardGameManager;
+import com.example.trylma.interfaces.Board;
+import com.example.trylma.interfaces.GameManager;
+import com.example.trylma.packets.BoardUpdatePacket;
+import com.example.trylma.packets.GameSettingsPacket;
+import com.example.trylma.packets.InvalidMovePacket;
+import com.example.trylma.packets.MovePacket;
+import com.example.trylma.packets.RequestGameSettingsPacket;
+import com.example.trylma.packets.RequestUsernamePacket;
 import com.example.trylma.packets.TextMessagePacket;
+import com.example.trylma.packets.UsernamePacket;
 
 public class ClientHandler implements Runnable {
     private final Socket clientSocket;
-    private final BufferedReader reader;
     private final ObjectOutputStream objectOutputStream;
+    private final ObjectInputStream objectInputStream;
     private GamePlayer player;
+    private GameManager gameManager;
 
     public ClientHandler(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
-        this.reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         this.objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
-    }
-
-    public void setPlayer(GamePlayer player) {
-        this.player = player;
+        this.objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
     }
 
     public GamePlayer getPlayer() {
         return player;
     }
 
-    public String receiveMessage() throws IOException {
-        return reader.readLine();
+    public void setupPlayer() throws ClassNotFoundException, IOException {
+        transmitRequestUsername("Enter your username:");
+        ServerPacket serverPacket = (ServerPacket) objectInputStream.readObject();
+        handlePacket(serverPacket);
+    }
+
+    public void setupGameSettings(int currentPlayers) throws ClassNotFoundException, IOException {
+        if (currentPlayers == 1) {
+            transmitRequestGameSettings("Enter the number of players (2, 3, 4, or 6)", "Enter the game variant (default)");
+            ServerPacket serverPacket = (ServerPacket) objectInputStream.readObject();
+            handlePacket(serverPacket);
+        } else {
+            transmitMessage("Game settings already configured. Joining the game...");
+        }    
+    }
+
+    private void validateNumberOfPlayers(int numberOfPlayers) throws InvalidGameSettingsException {
+        if (numberOfPlayers < 2 || numberOfPlayers == 5 || numberOfPlayers > 6) {
+            throw new InvalidGameSettingsException("Invalid number of players.");
+        }
+    }
+
+    private void validateGameType(String gameType) throws InvalidGameSettingsException {
+        List<String> gameTypes = Arrays.asList("default");
+
+        if (!gameTypes.contains(gameType)) {
+            throw new InvalidGameSettingsException("Invalid game variant.");
+        }
     }
 
     public void transmitMessage(String message) {
         transmitPacket(new TextMessagePacket(message));
     }
 
-    public void transmitPacket(ServerPacket packet) {
+    public void transmitMove(Move move) {
+        transmitPacket(new MovePacket(move));
+    }
+
+    public void transmitBoardUpdate(Board board) {
+        transmitPacket(new BoardUpdatePacket(board));
+    }
+
+    public void transmitInvalidMove(Move invalidMove) {
+        transmitPacket(new InvalidMovePacket(invalidMove));
+    }
+
+    public void transmitRequestUsername(String message) {
+        transmitPacket(new RequestUsernamePacket(message));
+    }
+
+    public void transmitRequestGameSettings(String numberOfPlayersMessage, String gameTypeMessage) {
+        transmitPacket(new RequestGameSettingsPacket(numberOfPlayersMessage, gameTypeMessage));
+    }
+
+    private void transmitPacket(ServerPacket packet) {
         try {
-           objectOutputStream.writeObject(packet);
-           objectOutputStream.flush();
+            System.out.println("Sending packet: " + packet.getClass().getName());
+            objectOutputStream.writeObject(packet);
+            objectOutputStream.flush();
         } catch (IOException e) {
-            System.err.println("Failed to transmit packet:" + e.getMessage());
-        } 
+            System.err.println("Failed to transmit packet: " + e.getMessage());
+        }
+    }
+
+    private void handlePacket(ServerPacket packet) {
+        if (packet instanceof TextMessagePacket textMessagePacket) {
+            handleTextMessage(textMessagePacket);
+        } else if (packet instanceof MovePacket movePacket) {
+            handleMove(movePacket);
+        } else if (packet instanceof UsernamePacket usernamePacket) {
+            handleUsername(usernamePacket);
+        } else if (packet instanceof GameSettingsPacket gameSettingsPacket) {
+            handleGameSettings(gameSettingsPacket);
+        } else {
+            System.err.println("Unknown packet type received: " + packet.getClass().getName());
+        }
+    }
+    
+    private void handleTextMessage(TextMessagePacket packet) {
+        String message = packet.getMessageString();
+        System.out.println("Received text message: " + message);
+        GameServer.broadcastMessage(message, this);
+    }
+
+    private void handleMove(MovePacket packet) {
+        Move move = packet.getMove();
+        System.out.println("Received move: " + move);
+
+        gameManager = GameManagerSingleton.getInstance();
+
+        if (gameManager.isMoveValid(move)) {
+            gameManager.applyMove(move);
+
+            Board updatedBoard = gameManager.getBoard();
+            GameServer.broadcastBoardUpdate(updatedBoard, this);
+        } else {
+            GameServer.broadcastInvalidMove(move, this);
+        }
+    }
+
+    private void handleUsername(UsernamePacket packet) {
+        String username = packet.getUsername();
+        System.out.println("Received username: " + username);
+
+        this.player = new GamePlayer(username);
+        System.out.println("Client connected: " + username);
+    }
+
+    private void handleGameSettings(GameSettingsPacket packet) {
+        int numberOfPlayers = packet.getNumberOfPlayers();
+        System.out.println("Received number of players: " + numberOfPlayers);
+        String gameType = packet.getGameType();
+        System.out.println("Received game type: " + gameType);
+
+        try {
+            validateNumberOfPlayers(numberOfPlayers);
+            GameServer.setNumberOfPlayers(numberOfPlayers);
+            validateGameType(gameType);
+            GameManagerSingleton.setInstance(new StandardGameManager(gameType, numberOfPlayers));
+            transmitMessage("Game settings applied: " + numberOfPlayers + " players, variant: " + gameType);
+        } catch (InvalidGameSettingsException e) {
+            System.err.println(e.getMessage());
+            transmitMessage("Error: " + e.getMessage());
+        }
     }
 
     @Override
     public void run() {
         try {
-            while (true) {
-                String message = reader.readLine();
-                if (message == null) {
-                    break;
+            setupPlayer();
+
+            synchronized (GameServer.class) {
+                GameServer.clientHandlers.add(this);
+                setupGameSettings(GameServer.clientHandlers.size());
+
+                if (GameServer.clientHandlers.size() == GameServer.getNumberOfPlayers()) {
+                    GameServer.broadcastMessage("The game is starting!", null);
                 }
-                GameServer.broadcastMessage(message, this);
             }
-        } catch (IOException e) {
+
+            while (true) {
+                ServerPacket serverPacket = (ServerPacket) objectInputStream.readObject();
+                handlePacket(serverPacket);
+                System.out.println("Received packet: " + serverPacket.getClass().getName());
+            }
+        } catch (IOException | ClassNotFoundException e) {
             System.err.println("Connection lost with client: " + e.getMessage());
         } finally {
+            cleanup();
+        }
+    }
+
+    private void cleanup() {
+        synchronized (GameServer.class) {
             GameServer.clientHandlers.remove(this);
             if (player != null) {
                 GameServer.broadcastMessage(player.getUsername() + " has left the game.", null);
             }
-            try {
-                clientSocket.close();
-            } catch (IOException e) {
-                System.err.println("Failed to close client socket: " + e.getMessage());
-            }
+        }
+        try {
+            clientSocket.close();
+        } catch (IOException e) {
+            System.err.println("Failed to close client socket: " + e.getMessage());
         }
     }
 }
