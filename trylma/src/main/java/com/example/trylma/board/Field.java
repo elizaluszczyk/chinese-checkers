@@ -4,12 +4,11 @@ public class Field implements com.example.trylma.interfaces.Field {
     private final int x;
     private final int y;
     private FieldType type;
-    private boolean isActive;
+    private boolean active = false;
     private Pawn pawn;
-    public Field(int x, int y, boolean isActive) {
+    public Field(int x, int y) {
         this.x = x;
         this.y = y;
-        this.isActive = isActive;
         this.occupied = false;
         this.pawn = null;
     }
@@ -26,11 +25,11 @@ public class Field implements com.example.trylma.interfaces.Field {
     public int getY() {
         return y;
     }
-    public boolean getActive() {
-        return isActive;
+    public boolean isActive() {
+        return active;
     }
     public void setActive(boolean active) {
-        isActive = active;
+        this.active = active;
     }
     public FieldType getType() {
         return type;
@@ -39,7 +38,7 @@ public class Field implements com.example.trylma.interfaces.Field {
         this.type = type;
     }
     public boolean isEmpty() {
-        return isActive && !occupied;
+        return active && !occupied;
     }
     public Pawn getPawn() {
         return pawn;
@@ -49,10 +48,12 @@ public class Field implements com.example.trylma.interfaces.Field {
         this.pawn = pawn;
     }
     public String toString() {
-        if (!isActive) {
+        if (!active) {
             return "{ }";
-        } else {
+        } else if (!occupied){
             return "{*}";
+        }else{
+            return "{@}";
         }
     }
 }
