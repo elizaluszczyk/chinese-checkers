@@ -1,6 +1,6 @@
 package com.example.trylma.factories;
 
-import com.example.trylma.game.DefaultChineseCheckersBoard;
+import com.example.trylma.game.ChineseCheckersBoard;
 import com.example.trylma.interfaces.Board;;
 
 public class BoardFactory {
@@ -9,16 +9,16 @@ public class BoardFactory {
             case "default" -> {
             switch (numberOfPlayers) {
                 case 2 -> {
-                    return new DefaultChineseCheckersBoard(2);
+                    return new ChineseCheckersBoard(2);
                 }
                 case 3 -> {
-                    return new DefaultChineseCheckersBoard(3);
+                    return new ChineseCheckersBoard(3);
                 }
                 case 4 -> {
-                    return new DefaultChineseCheckersBoard(4);
+                    return new ChineseCheckersBoard(4);
                 }
                 case 6 -> {
-                    return new DefaultChineseCheckersBoard(6);
+                    return new ChineseCheckersBoard(6);
                 }
                 default -> throw new IllegalArgumentException("Unsupported number of players: " + numberOfPlayers);
             }
