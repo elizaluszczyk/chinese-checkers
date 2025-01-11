@@ -3,7 +3,7 @@ public class Field implements com.example.trylma.interfaces.Field {
     private boolean occupied;
     private final int x;
     private final int y;
-    private FieldType type;
+//    private FieldType type;
     private boolean active = false;
     private Pawn pawn;
     public Field(int x, int y) {
@@ -31,12 +31,12 @@ public class Field implements com.example.trylma.interfaces.Field {
     public void setActive(boolean active) {
         this.active = active;
     }
-    public FieldType getType() {
-        return type;
-    }
-    public void setType(FieldType type) {
-        this.type = type;
-    }
+//    public FieldType getType() {
+//        return type;
+//    }
+//    public void setType(FieldType type) {
+//        this.type = type;
+//    }
     public boolean isEmpty() {
         return active && !occupied;
     }

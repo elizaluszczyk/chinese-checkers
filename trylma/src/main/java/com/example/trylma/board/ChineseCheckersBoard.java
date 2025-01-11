@@ -13,10 +13,10 @@ public class ChineseCheckersBoard implements Board, Serializable {
     private final ArrayList<ArrayList<Field>> board;
     private final int columns;
     private final int rows;
-    private ArrayList<ArrayList<Field>> startingPositions = new ArrayList<>();
+    private ArrayList<ArrayList<Field>> armsOfStar = new ArrayList<>();
 
-    public ArrayList<ArrayList<Field>> getStartingPositions() {
-        return this.startingPositions;
+    public ArrayList<ArrayList<Field>> getArmsOfStar() {
+        return this.armsOfStar;
     }
 
     private final int hexagon;
@@ -29,7 +29,7 @@ public class ChineseCheckersBoard implements Board, Serializable {
         this.movesPerformedByPlayers = new ArrayList<>();
         initializeBoard();
         initializeFields(board);
-        this.startingPositions = getStartingPositions(board);
+        this.armsOfStar = getFieldsInArmsOfStar(board);
     }
 
     public void initializeBoard() {
@@ -63,7 +63,7 @@ public class ChineseCheckersBoard implements Board, Serializable {
         }
     }
 
-    public ArrayList<ArrayList<Field>> getStartingPositions(ArrayList<ArrayList<Field>> board) {
+    public ArrayList<ArrayList<Field>> getFieldsInArmsOfStar(ArrayList<ArrayList<Field>> board) {
         ArrayList<Field> starArm1 = new ArrayList<>();
         for (int y = 0; y < hexagon - 1; y++) {
             for (Field field : board.get(y)) {
@@ -72,7 +72,7 @@ public class ChineseCheckersBoard implements Board, Serializable {
                 }
             }
         }
-        startingPositions.add(starArm1);
+        armsOfStar.add(starArm1);
 
         int numberOfInactiveFields2 = 0;
         int numberOfActiveFields2 = 2 * hexagon - 2;
@@ -88,7 +88,7 @@ public class ChineseCheckersBoard implements Board, Serializable {
             numberOfInactiveFields2++;
 
         }
-        startingPositions.add(starArm2);
+        armsOfStar.add(starArm2);
 
         int numberOfActiveFields3 = 2 * hexagon - 2;
         int numberOfInactiveFields3 = 0;
@@ -102,7 +102,7 @@ public class ChineseCheckersBoard implements Board, Serializable {
             numberOfActiveFields3--;
             numberOfInactiveFields3++;
         }
-        startingPositions.add(starArm3);
+        armsOfStar.add(starArm3);
 
         ArrayList<Field> starArm4 = new ArrayList<>();
         for (int y = rows + 1 - hexagon; y < rows; y++) {
@@ -112,7 +112,7 @@ public class ChineseCheckersBoard implements Board, Serializable {
                 }
             }
         }
-        startingPositions.add(starArm4);
+        armsOfStar.add(starArm4);
 
         int numberOfInactiveFields5 = 0;
         ArrayList<Field> starArm5 = new ArrayList<>();
@@ -124,7 +124,7 @@ public class ChineseCheckersBoard implements Board, Serializable {
             }
             numberOfInactiveFields5++;
         }
-        startingPositions.add(starArm5);
+        armsOfStar.add(starArm5);
 
 
         int numberOfInactiveFields6 = 0;
@@ -137,17 +137,17 @@ public class ChineseCheckersBoard implements Board, Serializable {
             }
             numberOfInactiveFields6++;
         }
-        startingPositions.add(starArm6);
+        armsOfStar.add(starArm6);
 
-        return startingPositions;
+        return armsOfStar;
 
     }
 
     public void printStartingPositions() {
-        for (int i = 0; i < startingPositions.size(); i++) {
+        for (int i = 0; i < armsOfStar.size(); i++) {
             System.out.println("Współrzędne z ramiona nr " + (i + 1));
-            for (int j = 0; j < startingPositions.get(i).size(); j++) {
-                System.out.println("pole: (" + startingPositions.get(i).get(j).getX() + ", " + startingPositions.get(i).get(j).getY() + " )");
+            for (int j = 0; j < armsOfStar.get(i).size(); j++) {
+                System.out.println("pole: (" + armsOfStar.get(i).get(j).getX() + ", " + armsOfStar.get(i).get(j).getY() + " )");
             }
         }
     }

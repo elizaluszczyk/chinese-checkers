@@ -4,7 +4,7 @@ import java.io.Serializable;
 public class Pawn implements Serializable {
     private final String playerId;
     private Field currentField;
-    private final String color;
+    private  String color;
     private final int id;
 
     public Pawn(String playerId, Field initialField, String color, int id) {
@@ -15,6 +15,10 @@ public class Pawn implements Serializable {
 //            if (initialField != null) {
 //                initialField.setPiece(this);
 //            }
+    }    public Pawn(String playerId, Field initialField, int id) {
+        this.playerId = playerId;
+        this.currentField = initialField;
+        this.id = id;
     }
     public Field getCurrentField() {
         return currentField;

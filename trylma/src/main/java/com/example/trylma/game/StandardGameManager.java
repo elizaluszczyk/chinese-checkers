@@ -26,5 +26,5 @@ public class StandardGameManager implements GameManager {
     public void applyMove(Move move) {
         //TODO
     }
-    
+
 }
