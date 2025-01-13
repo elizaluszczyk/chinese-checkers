@@ -22,6 +22,7 @@ import com.example.trylma.packets.TurnUpdatePacket;
 import com.example.trylma.packets.UsernamePacket;
 
 public class ClientHandler implements Runnable {
+
     private final Socket clientSocket;
     private final ObjectOutputStream objectOutputStream;
     private final ObjectInputStream objectInputStream;
@@ -52,7 +53,7 @@ public class ClientHandler implements Runnable {
             handlePacket(serverPacket);
         } else {
             transmitMessage("Game settings already configured. Joining the game...");
-        }    
+        }
     }
 
     public void transmitMessage(String message) {
@@ -106,7 +107,7 @@ public class ClientHandler implements Runnable {
             System.err.println("Unknown packet type received: " + packet.getClass().getName());
         }
     }
-    
+
     private void handleTextMessage(TextMessagePacket packet) {
         String message = packet.getMessageString();
         System.out.println("Received text message: " + message);
@@ -156,7 +157,7 @@ public class ClientHandler implements Runnable {
         transmitMessage("Game settings applied: " + numberOfPlayers + " players, variant: " + gameType);
     }
 
-    public boolean isPlayerTurn() {
+    private boolean isPlayerTurn() {
         return playerTurn;
     }
 
