@@ -20,6 +20,7 @@ import com.example.trylma.packets.MovePacket;
 import com.example.trylma.packets.RequestGameSettingsPacket;
 import com.example.trylma.packets.RequestUsernamePacket;
 import com.example.trylma.packets.TextMessagePacket;
+import com.example.trylma.packets.TurnUpdatePacket;
 import com.example.trylma.packets.UsernamePacket;
 
 public class ClientHandler implements Runnable {
@@ -28,6 +29,7 @@ public class ClientHandler implements Runnable {
     private final ObjectInputStream objectInputStream;
     private GamePlayer player;
     private GameManager gameManager;
+    private boolean playerTurn = true;
 
     public ClientHandler(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
@@ -93,6 +95,10 @@ public class ClientHandler implements Runnable {
         transmitPacket(new RequestGameSettingsPacket(numberOfPlayersMessage, gameTypeMessage));
     }
 
+    public void transmitTurnUpdate(String message) {
+        transmitPacket(new TurnUpdatePacket(message));
+    }
+
     private void transmitPacket(ServerPacket packet) {
         try {
             System.out.println("Sending packet: " + packet.getClass().getName());
@@ -129,13 +135,21 @@ public class ClientHandler implements Runnable {
 
         gameManager = GameManagerSingleton.getInstance();
 
+        if (!isPlayerTurn()) {
+            transmitMessage("It's not your turn!");
+            return;
+        }
+
         if (gameManager.isMoveValid(move)) {
             gameManager.applyMove(move);
 
             Board updatedBoard = gameManager.getBoard();
             GameServer.broadcastBoardUpdate(updatedBoard, this);
+
+            GameServer.moveToNextTurn();
         } else {
-            GameServer.broadcastInvalidMove(move, this);
+            this.transmitInvalidMove(move);
+            transmitTurnUpdate("Move was invalid. Try again, it's your turn!");
         }
     }
 
@@ -163,6 +177,13 @@ public class ClientHandler implements Runnable {
             System.err.println(e.getMessage());
             transmitMessage("Error: " + e.getMessage());
         }
+
+    public boolean isPlayerTurn() {
+        return playerTurn;
+    }
+
+    public void setPlayerTurn(boolean playerTurn) {
+        this.playerTurn = playerTurn;
     }
 
     @Override
@@ -176,6 +197,7 @@ public class ClientHandler implements Runnable {
 
                 if (GameServer.clientHandlers.size() == GameServer.getNumberOfPlayers()) {
                     GameServer.broadcastMessage("The game is starting!", null);
+                    GameServer.moveToNextTurn();
                 }
             }
 
