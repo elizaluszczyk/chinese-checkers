@@ -14,10 +14,12 @@ import com.example.trylma.exceptions.InvalidMoveException;
 import com.example.trylma.interfaces.Board;
 import com.example.trylma.packets.BoardUpdatePacket;
 import com.example.trylma.packets.GameSettingsPacket;
+import com.example.trylma.packets.InvalidMovePacket;
 import com.example.trylma.packets.MovePacket;
 import com.example.trylma.packets.RequestGameSettingsPacket;
 import com.example.trylma.packets.RequestUsernamePacket;
 import com.example.trylma.packets.TextMessagePacket;
+import com.example.trylma.packets.TurnUpdatePacket;
 import com.example.trylma.packets.UsernamePacket;
 import com.example.trylma.parsers.StandardMoveParser;
 import com.example.trylma.server.ServerPacket;
@@ -159,6 +161,10 @@ public class GameClient {
             handleRequestUsername(requestUsernamePacket);
         } else if (packet instanceof RequestGameSettingsPacket requestGameSettingsPacket) {
             handleRequestGameSettings(requestGameSettingsPacket);
+        } else if (packet instanceof TurnUpdatePacket turnUpdatePacket) {
+            handleTurnUpdate(turnUpdatePacket);
+        } else if (packet instanceof InvalidMovePacket invalidMovePacket) {
+            handleInvalidMove(invalidMovePacket);
         } else {
             System.err.println("Unknown packet type received.");
         }
@@ -193,5 +199,15 @@ public class GameClient {
         System.out.println(gameTypeMessage);
 
         this.waitingForGameSettings = true;
+    }
+
+    private void handleTurnUpdate(TurnUpdatePacket packet) {
+        String message = packet.getMessage();
+        System.out.println("Received turn update: " + message);
+    }
+
+    private void handleInvalidMove(InvalidMovePacket packet) {
+        Move invalidMove = packet.getInvalidMove();
+        System.out.println("Received invalid move: " + invalidMove);
     }
 }
