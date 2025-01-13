@@ -4,15 +4,13 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Arrays;
-import java.util.List;
 
 import com.example.trylma.board.Move;
-import com.example.trylma.exceptions.InvalidGameSettingsException;
 import com.example.trylma.game.GamePlayer;
 import com.example.trylma.game.StandardGameManager;
 import com.example.trylma.interfaces.Board;
 import com.example.trylma.interfaces.GameManager;
+import com.example.trylma.interfaces.Player;
 import com.example.trylma.packets.BoardUpdatePacket;
 import com.example.trylma.packets.GameSettingsPacket;
 import com.example.trylma.packets.InvalidMovePacket;
@@ -27,7 +25,7 @@ public class ClientHandler implements Runnable {
     private final Socket clientSocket;
     private final ObjectOutputStream objectOutputStream;
     private final ObjectInputStream objectInputStream;
-    private GamePlayer player;
+    private Player player;
     private GameManager gameManager;
     private boolean playerTurn = true;
 
@@ -37,17 +35,17 @@ public class ClientHandler implements Runnable {
         this.objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
     }
 
-    public GamePlayer getPlayer() {
+    public Player getPlayer() {
         return player;
     }
 
-    public void setupPlayer() throws ClassNotFoundException, IOException {
+    private void setupPlayer() throws ClassNotFoundException, IOException {
         transmitRequestUsername("Enter your username:");
         ServerPacket serverPacket = (ServerPacket) objectInputStream.readObject();
         handlePacket(serverPacket);
     }
 
-    public void setupGameSettings(int currentPlayers) throws ClassNotFoundException, IOException {
+    private void setupGameSettings(int currentPlayers) throws ClassNotFoundException, IOException {
         if (currentPlayers == 1) {
             transmitRequestGameSettings("Enter the number of players (2, 3, 4, or 6)", "Enter the game variant (default)");
             ServerPacket serverPacket = (ServerPacket) objectInputStream.readObject();
@@ -55,20 +53,6 @@ public class ClientHandler implements Runnable {
         } else {
             transmitMessage("Game settings already configured. Joining the game...");
         }    
-    }
-
-    private void validateNumberOfPlayers(int numberOfPlayers) throws InvalidGameSettingsException {
-        if (numberOfPlayers < 2 || numberOfPlayers == 5 || numberOfPlayers > 6) {
-            throw new InvalidGameSettingsException("Invalid number of players.");
-        }
-    }
-
-    private void validateGameType(String gameType) throws InvalidGameSettingsException {
-        List<String> gameTypes = Arrays.asList("default");
-
-        if (!gameTypes.contains(gameType)) {
-            throw new InvalidGameSettingsException("Invalid game variant.");
-        }
     }
 
     public void transmitMessage(String message) {
@@ -167,16 +151,10 @@ public class ClientHandler implements Runnable {
         String gameType = packet.getGameType();
         System.out.println("Received game type: " + gameType);
 
-        try {
-            validateNumberOfPlayers(numberOfPlayers);
-            GameServer.setNumberOfPlayers(numberOfPlayers);
-            validateGameType(gameType);
-            GameManagerSingleton.setInstance(new StandardGameManager(gameType, numberOfPlayers));
-            transmitMessage("Game settings applied: " + numberOfPlayers + " players, variant: " + gameType);
-        } catch (InvalidGameSettingsException e) {
-            System.err.println(e.getMessage());
-            transmitMessage("Error: " + e.getMessage());
-        }
+        GameServer.setNumberOfPlayers(numberOfPlayers);
+        GameManagerSingleton.setInstance(new StandardGameManager(gameType, numberOfPlayers));
+        transmitMessage("Game settings applied: " + numberOfPlayers + " players, variant: " + gameType);
+    }
 
     public boolean isPlayerTurn() {
         return playerTurn;
@@ -207,7 +185,7 @@ public class ClientHandler implements Runnable {
                 System.out.println("Received packet: " + serverPacket.getClass().getName());
             }
         } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Connection lost with client: " + e.getMessage());
+            System.err.println("Connection lost with client: " + this.getPlayer().getUsername());
         } finally {
             cleanup();
         }

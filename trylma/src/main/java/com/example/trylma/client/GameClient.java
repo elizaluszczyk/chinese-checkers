@@ -10,7 +10,10 @@ import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 
+import com.example.trylma.board.Move;
+import com.example.trylma.exceptions.InvalidGameSettingsException;
 import com.example.trylma.exceptions.InvalidMoveException;
+import com.example.trylma.game.GameType;
 import com.example.trylma.interfaces.Board;
 import com.example.trylma.packets.BoardUpdatePacket;
 import com.example.trylma.packets.GameSettingsPacket;
@@ -93,16 +96,14 @@ public class GameClient {
      * Each time after a user inputs a string this method is called. It decides what to do with the string from the user
      */
     private void handleUserInput(ObjectOutputStream objectOutputStream) {
-        if (this.waitingForUsername)
-        {
+        if (this.waitingForUsername) {
             String userInputString = queue.remove();
             System.out.println("Ill send this input as a string message, since the flag is set");
             UsernamePacket usernamePacket = new UsernamePacket(userInputString);
             sendPacketToServer(usernamePacket, objectOutputStream);
             this.waitingForUsername = false;
             return;
-        } else if (this.waitingForGameSettings)
-        {
+        } else if (this.waitingForGameSettings) {
             if (queue.size() < 2) return;
 
             String numberOfPlayersString = queue.remove();
@@ -112,16 +113,26 @@ public class GameClient {
 
             try {
                 numberOfPlayers = Integer.parseInt(numberOfPlayersString);
-            } catch (NumberFormatException e) {
+                validateNumberOfPlayers(numberOfPlayers);
+            } catch (NumberFormatException | InvalidGameSettingsException e ) {
                 System.out.println("Invalid number of players, enter settings again");
                 return;
             }
+
+            try {
+                validateGameType(gameTypeString);
+            } catch (InvalidGameSettingsException e) {
+                System.out.println("Invalid game type, enter settings again");
+                return;
+            }
+
             GameSettingsPacket gameSettingsPacket = new GameSettingsPacket(numberOfPlayers, gameTypeString);
             sendPacketToServer(gameSettingsPacket, objectOutputStream);
             
             this.waitingForGameSettings = false;
         }
         try {
+            if (queue.isEmpty()) return;
             String userInputString = queue.remove();
             ServerPacket serverPacket = parseInput(userInputString);
             if (serverPacket != null) {
@@ -131,6 +142,18 @@ public class GameClient {
             System.err.println("Invalid input: " + e.getMessage());
         } catch (NoSuchElementException e) {
             System.err.println("Missing element:" + e.getMessage());
+        }
+    }
+
+    private void validateNumberOfPlayers(int numberOfPlayers) throws InvalidGameSettingsException {
+        if (numberOfPlayers < 2 || numberOfPlayers == 5 || numberOfPlayers > 6) {
+            throw new InvalidGameSettingsException("Invalid number of players.");
+        }
+    }
+
+    private void validateGameType(String gameType) throws InvalidGameSettingsException {
+        if (!GameType.isValid(gameType)) {
+            throw new InvalidGameSettingsException("Invalid game type: " + gameType);
         }
     }
     
