@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import com.example.trylma.board.Move;
 import com.example.trylma.exceptions.InvalidGameSettingsException;
 import com.example.trylma.game.GamePlayer;
+import com.example.trylma.interfaces.Player;
 import com.example.trylma.game.StandardGameManager;
 import com.example.trylma.interfaces.Board;
 import com.example.trylma.interfaces.GameManager;
@@ -28,6 +30,8 @@ public class ClientHandler implements Runnable {
     private final ObjectInputStream objectInputStream;
     private GamePlayer player;
     private GameManager gameManager;
+
+    private static ArrayList<GamePlayer> players = new ArrayList<>();
 
     public ClientHandler(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
@@ -52,7 +56,7 @@ public class ClientHandler implements Runnable {
             handlePacket(serverPacket);
         } else {
             transmitMessage("Game settings already configured. Joining the game...");
-        }    
+        }
     }
 
     private void validateNumberOfPlayers(int numberOfPlayers) throws InvalidGameSettingsException {
@@ -116,7 +120,7 @@ public class ClientHandler implements Runnable {
             System.err.println("Unknown packet type received: " + packet.getClass().getName());
         }
     }
-    
+
     private void handleTextMessage(TextMessagePacket packet) {
         String message = packet.getMessageString();
         System.out.println("Received text message: " + message);
@@ -144,6 +148,7 @@ public class ClientHandler implements Runnable {
         System.out.println("Received username: " + username);
 
         this.player = new GamePlayer(username);
+        players.add(this.player);
         System.out.println("Client connected: " + username);
     }
 
@@ -189,6 +194,10 @@ public class ClientHandler implements Runnable {
         } finally {
             cleanup();
         }
+    }
+
+    public static ArrayList<GamePlayer> getAllPlayers() {
+        return players;
     }
 
     private void cleanup() {
