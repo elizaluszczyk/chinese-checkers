@@ -116,7 +116,7 @@ public class GameClient {
             try {
                 numberOfPlayers = Integer.parseInt(numberOfPlayersString);
                 validateNumberOfPlayers(numberOfPlayers);
-            } catch (NumberFormatException | InvalidGameSettingsException e ) {
+            } catch (NumberFormatException | InvalidGameSettingsException e) {
                 System.out.println("Invalid number of players, enter settings again");
                 return;
             }
@@ -158,7 +158,7 @@ public class GameClient {
             throw new InvalidGameSettingsException("Invalid game type: " + gameType);
         }
     }
-    
+  
     private void sendPacketToServer(ServerPacket packet, ObjectOutputStream objectOutputStream) {
         try {
             objectOutputStream.writeObject(packet);

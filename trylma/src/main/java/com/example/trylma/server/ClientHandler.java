@@ -7,7 +7,6 @@ import java.net.Socket;
 
 import com.example.trylma.board.Move;
 import com.example.trylma.game.GamePlayer;
-import com.example.trylma.interfaces.Player;
 import com.example.trylma.game.StandardGameManager;
 import com.example.trylma.interfaces.Board;
 import com.example.trylma.interfaces.GameManager;
@@ -146,7 +145,6 @@ public class ClientHandler implements Runnable {
         System.out.println("Received username: " + username);
 
         this.player = new GamePlayer(username);
-        players.add(this.player);
         System.out.println("Client connected: " + username);
     }
 
@@ -180,6 +178,7 @@ public class ClientHandler implements Runnable {
 
                 if (GameServer.clientHandlers.size() == GameServer.getNumberOfPlayers()) {
                     GameServer.broadcastMessage("The game is starting!", null);
+                  
                     GameServer.moveToNextTurn();
                 }
             }
@@ -196,10 +195,6 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public static ArrayList<GamePlayer> getAllPlayers() {
-        return players;
-    }
-
     private void cleanup() {
         synchronized (GameServer.class) {
             GameServer.clientHandlers.remove(this);
@@ -210,7 +205,7 @@ public class ClientHandler implements Runnable {
         try {
             clientSocket.close();
         } catch (IOException e) {
-            System.err.println("Failed to close client socket: " + e.getMessage());
+            System.err.println("Failed to close client socket: " + this.getPlayer().getUsername());
         }
     }
 }

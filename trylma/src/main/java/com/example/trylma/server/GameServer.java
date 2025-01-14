@@ -44,7 +44,13 @@ public class GameServer {
         GameServer.numberOfPlayers = numberOfPlayers;
     }
 
-    public static int getCurrentPlayerIndex() {
+    private static void notifyCurrentPlayer() {
+        ClientHandler currentHandler = clientHandlers.get(currentPlayerIndex);
+        System.out.println("Notifying player " + currentHandler.getPlayer().getUsername() + " that it's their turn.");
+        currentHandler.transmitTurnUpdate("It's your turn!");
+    }
+
+    private static int getCurrentPlayerIndex() {
         return currentPlayerIndex;
     }
 
@@ -52,14 +58,8 @@ public class GameServer {
         currentPlayerIndex = index;
     }
 
-    public static void incrementPlayerIndex() {
+    private static void incrementPlayerIndex() {
         currentPlayerIndex = (currentPlayerIndex + 1) % clientHandlers.size();
-    }
-
-    public static void notifyCurrentPlayer() {
-        ClientHandler currentHandler = GameServer.clientHandlers.get(GameServer.currentPlayerIndex);
-        System.out.println("Notifying player " + currentHandler.getPlayer().getUsername() + " that it's their turn.");
-        currentHandler.transmitTurnUpdate("It's your turn! You can move");
     }
 
     public static void moveToNextTurn() {
@@ -73,7 +73,7 @@ public class GameServer {
         ClientHandler currentHandler = GameServer.clientHandlers.get(GameServer.currentPlayerIndex);
         currentHandler.setPlayerTurn(false);
 
-        GameServer.incrementPlayerIndex();
+        incrementPlayerIndex();
     
         ClientHandler nextHandler = GameServer.clientHandlers.get(GameServer.currentPlayerIndex);
         nextHandler.setPlayerTurn(true);
