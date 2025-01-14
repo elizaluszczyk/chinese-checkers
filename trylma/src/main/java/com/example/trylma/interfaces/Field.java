@@ -12,3 +12,4 @@ public interface Field {
     void setPawn(Pawn pawn);
     Pawn getPawn();
 }
+

@@ -55,7 +55,7 @@ public class StandardGameManager implements GameManager {
     public void applyMove(Move move) {
         //TODO
     }
-
+  
     private boolean isValidJump(int startX, int endX, int startY, int endY) {
         Queue<int[]> queue = new LinkedList<>();
         HashSet<String> visited = new HashSet<>();
