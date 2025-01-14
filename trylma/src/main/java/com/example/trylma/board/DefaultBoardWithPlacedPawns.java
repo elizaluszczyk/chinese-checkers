@@ -1,35 +1,35 @@
 package com.example.trylma.board;
 
-import com.example.trylma.game.GamePlayer;
-import com.example.trylma.server.ClientHandler;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+import com.example.trylma.interfaces.Field;
+import com.example.trylma.interfaces.Player;
+import com.example.trylma.server.GameServer;
+
 public class DefaultBoardWithPlacedPawns extends ChineseCheckersBoard {
-    private final int numberOfPlayers;
-//    private ArrayList<ArrayList<Field>> startingPositions;
-//ArrayList<GamePlayer> listOfPlayers = ClientHandler.getAllPlayers();
-    GamePlayer gamePlayer1 = new GamePlayer("adam");
-    GamePlayer gamePlayer2 = new GamePlayer("karol");
-ArrayList<GamePlayer> listOfPlayers = new ArrayList<>(Arrays.asList(gamePlayer1, gamePlayer2));
+    // private final int numberOfPlayers;
+    // private ArrayList<ArrayList<Field>> startingPositions;
+    // ArrayList<GamePlayer> listOfPlayers = ClientHandler.getAllPlayers();
+    // GamePlayer gamePlayer1 = new GamePlayer("adam");
+    // GamePlayer gamePlayer2 = new GamePlayer("karol");
+    // ArrayList<GamePlayer> listOfPlayers = new ArrayList<>(Arrays.asList(gamePlayer1, gamePlayer2));
 
-
+    ArrayList<Player> listOfPlayers = new ArrayList<>(GameServer.getAllPlayers());
 
     public DefaultBoardWithPlacedPawns(int numberOfPlayers) {
         super(5);
-        this.numberOfPlayers = numberOfPlayers;
-//        this.startingPositions = new ArrayList<>();
+        // this.numberOfPlayers = numberOfPlayers;
+        // this.startingPositions = new ArrayList<>();
         setStartingAndTargetPositions(numberOfPlayers);
         placePawns();
     }
 
-
-    public void placePawns(){
-        for(GamePlayer player : listOfPlayers){
-            for (int i = 0; i < player.getStartingPositions().size(); i++){
-                Pawn pawn = new Pawn(player.getUsername(), player.getStartingPositions().get(i), i);
+    @Override
+    public void placePawns() {
+        for (Player player : listOfPlayers) {
+            for (int i = 0; i < player.getStartingPositions().size(); i++) {
+                Pawn pawn = new Pawn(player.getUsername(), (Field) player.getStartingPositions().get(i), i);
                 player.getPawns().add(pawn);
                 player.getStartingPositions().get(i).setPawn(pawn);
                 player.getStartingPositions().get(i).setOccupied(true);
@@ -38,7 +38,11 @@ ArrayList<GamePlayer> listOfPlayers = new ArrayList<>(Arrays.asList(gamePlayer1,
         }
     }
 
-    public void setStartingAndTargetPositions(int numberOfPlayers){
+    public void setStartingAndTargetPositions(int numberOfPlayers) {
+        if (listOfPlayers.size() < numberOfPlayers) {
+            return;
+        }
+
         switch (numberOfPlayers) {
             case 2:
                 listOfPlayers.get(0).setStartingPositions(getArmsOfStar().get(0));
@@ -80,22 +84,22 @@ ArrayList<GamePlayer> listOfPlayers = new ArrayList<>(Arrays.asList(gamePlayer1,
                 break;
             default:
                 throw new IllegalArgumentException("Invalid number of players: " + numberOfPlayers);
-
-
         }
     }
 
-
-
+    @Override
     public void printBoard() {
+        placePawns();
         for (List<Field> row : getBoard()) {
             for (Field field : row) {
-                System.out.print(field.isActive() ? field.toString() : "{ }");
+                if (field.isActive()) {
+                     System.out.print(field.toString());
+                } else {
+                    System.out.print("{ }");
+                }
             }
             System.out.println();
         }
     }
-
-
 
 }

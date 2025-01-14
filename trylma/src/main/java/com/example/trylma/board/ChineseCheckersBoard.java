@@ -2,23 +2,17 @@ package com.example.trylma.board;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.example.trylma.interfaces.Board;
-import com.example.trylma.interfaces.Player;
+import com.example.trylma.interfaces.Field;
 
 public class ChineseCheckersBoard implements Board, Serializable {
     private static final long serialVersionUID = 1L;
-    private final ArrayList<String> movesPerformedByPlayers;
-
     private final ArrayList<ArrayList<Field>> board;
     private final int columns;
     private final int rows;
     private ArrayList<ArrayList<Field>> armsOfStar = new ArrayList<>();
-
-    public ArrayList<ArrayList<Field>> getArmsOfStar() {
-        return this.armsOfStar;
-    }
-
     private final int hexagon;
 
     public ChineseCheckersBoard(int sizeOfHexagon) {
@@ -26,23 +20,22 @@ public class ChineseCheckersBoard implements Board, Serializable {
         this.columns = 6 * sizeOfHexagon - 5;
         this.rows = 4 * sizeOfHexagon - 3;
         this.board = new ArrayList<>();
-        this.movesPerformedByPlayers = new ArrayList<>();
         initializeBoard();
         initializeFields(board);
         this.armsOfStar = getFieldsInArmsOfStar(board);
     }
 
-    public void initializeBoard() {
+    private void initializeBoard() {
         for (int y = 0; y < rows; y++) {
             ArrayList<Field> row = new ArrayList<>();
             for (int x = 0; x < columns; x++) {
-                row.add(new Field(x, y));
+                row.add(new StandardField(x, y));
             }
             board.add(row);
         }
     }
 
-    public void initializeFields(ArrayList<ArrayList<Field>> board) {
+    private void initializeFields(ArrayList<ArrayList<Field>> board) {
         int numberOfInactiveFields1 = 0;
         int numberOfActiveFields1 = columns;
         for (int y = (hexagon - 1); y < rows; y++) {
@@ -63,7 +56,7 @@ public class ChineseCheckersBoard implements Board, Serializable {
         }
     }
 
-    public ArrayList<ArrayList<Field>> getFieldsInArmsOfStar(ArrayList<ArrayList<Field>> board) {
+    private ArrayList<ArrayList<Field>> getFieldsInArmsOfStar(ArrayList<ArrayList<Field>> board) {
         ArrayList<Field> starArm1 = new ArrayList<>();
         for (int y = 0; y < hexagon - 1; y++) {
             for (Field field : board.get(y)) {
@@ -152,10 +145,39 @@ public class ChineseCheckersBoard implements Board, Serializable {
         }
     }
 
+    public ArrayList<ArrayList<Field>> getArmsOfStar() {
+        return this.armsOfStar;
+    }
+
 
     @Override
     public ArrayList<ArrayList<Field>> getBoard() {
         return board;
+    }
+
+    @Override
+    public Field getField(int x, int y) {
+        if (x >= 0 && x < board.size() && y >= 0 && y < board.get(x).size()) {
+            return board.get(x).get(y);
+        }
+        return null;
+    }
+
+    
+    @Override
+    public void printBoard() {
+        for (List<Field> row : getBoard()) {
+            for (Field field : row) {
+                System.out.print(field.isActive() ? field.toString() : "{ }");
+            }
+            System.out.println();
+        }
+    }
+
+    @Override
+    public void placePawns() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'placePawns'");
     }
 
 

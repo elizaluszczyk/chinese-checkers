@@ -5,6 +5,7 @@ import java.io.Serializable;
 import com.example.trylma.interfaces.Field;
 
 public class StandardField implements Field, Serializable {
+    private static final long serialVersionUID = 1L;
     private final int x;
     private final int y;
     private boolean active;

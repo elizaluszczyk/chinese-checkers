@@ -8,11 +8,13 @@ import java.util.Random;
 
 import com.example.trylma.interfaces.Board;
 import com.example.trylma.interfaces.GameManager;
+import com.example.trylma.interfaces.Player;
 
 public class GameServer {
     private final int port;
     private static int numberOfPlayers = 0;
     protected static final ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
+    protected static final ArrayList<Player> players = new ArrayList<>();
     protected static GameManager gameManager;
     protected static Integer currentPlayerIndex = null;
 
@@ -48,10 +50,6 @@ public class GameServer {
         ClientHandler currentHandler = clientHandlers.get(currentPlayerIndex);
         System.out.println("Notifying player " + currentHandler.getPlayer().getUsername() + " that it's their turn.");
         currentHandler.transmitTurnUpdate("It's your turn!");
-    }
-
-    private static int getCurrentPlayerIndex() {
-        return currentPlayerIndex;
     }
 
     public static void setCurrentPlayerIndex(int index) {
@@ -97,5 +95,9 @@ public class GameServer {
         for (ClientHandler client : clientHandlers) {
             client.transmitBoardUpdate(board);
         }
+    }
+
+    public static ArrayList<Player> getAllPlayers() {
+        return players;
     }
 }

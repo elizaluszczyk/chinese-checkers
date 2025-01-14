@@ -3,6 +3,7 @@ package com.example.trylma.board;
 import java.io.Serializable;
 
 public class Move implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final int startX;
     private final int startY;
     private final int endX;

@@ -30,8 +30,6 @@ public class ClientHandler implements Runnable {
     private GameManager gameManager;
     private boolean playerTurn = true;
 
-    private static ArrayList<GamePlayer> players = new ArrayList<>();
-
     public ClientHandler(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
         this.objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -174,12 +172,16 @@ public class ClientHandler implements Runnable {
 
             synchronized (GameServer.class) {
                 GameServer.clientHandlers.add(this);
+                GameServer.players.add(this.getPlayer());
                 setupGameSettings(GameServer.clientHandlers.size());
 
                 if (GameServer.clientHandlers.size() == GameServer.getNumberOfPlayers()) {
                     GameServer.broadcastMessage("The game is starting!", null);
                   
                     GameServer.moveToNextTurn();
+
+                    gameManager = GameManagerSingleton.getInstance();
+                    GameServer.broadcastBoardUpdate(gameManager.getBoard(), this);
                 }
             }
 

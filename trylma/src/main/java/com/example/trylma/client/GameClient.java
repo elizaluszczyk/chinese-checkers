@@ -200,6 +200,7 @@ public class GameClient {
 
     private void handleBoardUpdate(BoardUpdatePacket packet) {
         Board board = packet.getBoard();
+        board.printBoard();
         System.out.println("Received board update: " + board);
     }
 
