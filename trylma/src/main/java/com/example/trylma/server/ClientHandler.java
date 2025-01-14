@@ -4,14 +4,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import com.example.trylma.board.Move;
-import com.example.trylma.exceptions.InvalidGameSettingsException;
 import com.example.trylma.game.GamePlayer;
-import com.example.trylma.interfaces.Player;
 import com.example.trylma.game.StandardGameManager;
 import com.example.trylma.interfaces.Board;
 import com.example.trylma.interfaces.GameManager;
@@ -22,16 +17,17 @@ import com.example.trylma.packets.MovePacket;
 import com.example.trylma.packets.RequestGameSettingsPacket;
 import com.example.trylma.packets.RequestUsernamePacket;
 import com.example.trylma.packets.TextMessagePacket;
+import com.example.trylma.packets.TurnUpdatePacket;
 import com.example.trylma.packets.UsernamePacket;
 
 public class ClientHandler implements Runnable {
+
     private final Socket clientSocket;
     private final ObjectOutputStream objectOutputStream;
     private final ObjectInputStream objectInputStream;
     private GamePlayer player;
     private GameManager gameManager;
-
-    private static ArrayList<GamePlayer> players = new ArrayList<>();
+    private boolean playerTurn = true;
 
     public ClientHandler(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
@@ -59,20 +55,6 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private void validateNumberOfPlayers(int numberOfPlayers) throws InvalidGameSettingsException {
-        if (numberOfPlayers < 2 || numberOfPlayers == 5 || numberOfPlayers > 6) {
-            throw new InvalidGameSettingsException("Invalid number of players.");
-        }
-    }
-
-    private void validateGameType(String gameType) throws InvalidGameSettingsException {
-        List<String> gameTypes = Arrays.asList("default");
-
-        if (!gameTypes.contains(gameType)) {
-            throw new InvalidGameSettingsException("Invalid game variant.");
-        }
-    }
-
     public void transmitMessage(String message) {
         transmitPacket(new TextMessagePacket(message));
     }
@@ -95,6 +77,10 @@ public class ClientHandler implements Runnable {
 
     public void transmitRequestGameSettings(String numberOfPlayersMessage, String gameTypeMessage) {
         transmitPacket(new RequestGameSettingsPacket(numberOfPlayersMessage, gameTypeMessage));
+    }
+
+    public void transmitTurnUpdate(String message) {
+        transmitPacket(new TurnUpdatePacket(message));
     }
 
     private void transmitPacket(ServerPacket packet) {
@@ -133,13 +119,21 @@ public class ClientHandler implements Runnable {
 
         gameManager = GameManagerSingleton.getInstance();
 
+        if (!isPlayerTurn()) {
+            transmitMessage("It's not your turn!");
+            return;
+        }
+
         if (gameManager.isMoveValid(move)) {
             gameManager.applyMove(move);
 
             Board updatedBoard = gameManager.getBoard();
             GameServer.broadcastBoardUpdate(updatedBoard, this);
+
+            GameServer.moveToNextTurn();
         } else {
-            GameServer.broadcastInvalidMove(move, this);
+            transmitInvalidMove(move);
+            transmitTurnUpdate("Move was invalid. Try again, it's your turn!");
         }
     }
 
@@ -148,7 +142,6 @@ public class ClientHandler implements Runnable {
         System.out.println("Received username: " + username);
 
         this.player = new GamePlayer(username);
-        players.add(this.player);
         System.out.println("Client connected: " + username);
     }
 
@@ -158,16 +151,18 @@ public class ClientHandler implements Runnable {
         String gameType = packet.getGameType();
         System.out.println("Received game type: " + gameType);
 
-        try {
-            validateNumberOfPlayers(numberOfPlayers);
-            GameServer.setNumberOfPlayers(numberOfPlayers);
-            validateGameType(gameType);
-            GameManagerSingleton.setInstance(new StandardGameManager(gameType, numberOfPlayers));
-            transmitMessage("Game settings applied: " + numberOfPlayers + " players, variant: " + gameType);
-        } catch (InvalidGameSettingsException e) {
-            System.err.println(e.getMessage());
-            transmitMessage("Error: " + e.getMessage());
-        }
+        GameServer.setNumberOfPlayers(numberOfPlayers);
+        
+        GameManagerSingleton.setInstance(new StandardGameManager(gameType, numberOfPlayers));
+        transmitMessage("Game settings applied: " + numberOfPlayers + " players, variant: " + gameType);
+    }
+
+    private boolean isPlayerTurn() {
+        return playerTurn;
+    }
+
+    public void setPlayerTurn(boolean playerTurn) {
+        this.playerTurn = playerTurn;
     }
 
     @Override
@@ -181,6 +176,8 @@ public class ClientHandler implements Runnable {
 
                 if (GameServer.clientHandlers.size() == GameServer.getNumberOfPlayers()) {
                     GameServer.broadcastMessage("The game is starting!", null);
+
+                    GameServer.moveToNextTurn();
                 }
             }
 
@@ -190,14 +187,10 @@ public class ClientHandler implements Runnable {
                 System.out.println("Received packet: " + serverPacket.getClass().getName());
             }
         } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Connection lost with client: " + e.getMessage());
+            System.err.println("Connection lost with client: " + this.getPlayer().getUsername());
         } finally {
             cleanup();
         }
-    }
-
-    public static ArrayList<GamePlayer> getAllPlayers() {
-        return players;
     }
 
     private void cleanup() {
@@ -210,7 +203,7 @@ public class ClientHandler implements Runnable {
         try {
             clientSocket.close();
         } catch (IOException e) {
-            System.err.println("Failed to close client socket: " + e.getMessage());
+            System.err.println("Failed to close client socket: " + this.getPlayer().getUsername());
         }
     }
 }
