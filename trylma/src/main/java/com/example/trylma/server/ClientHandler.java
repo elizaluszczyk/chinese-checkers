@@ -10,6 +10,7 @@ import com.example.trylma.game.GamePlayer;
 import com.example.trylma.game.StandardGameManager;
 import com.example.trylma.interfaces.Board;
 import com.example.trylma.interfaces.GameManager;
+import com.example.trylma.interfaces.Player;
 import com.example.trylma.packets.BoardUpdatePacket;
 import com.example.trylma.packets.GameSettingsPacket;
 import com.example.trylma.packets.InvalidMovePacket;
@@ -25,9 +26,11 @@ public class ClientHandler implements Runnable {
     private final Socket clientSocket;
     private final ObjectOutputStream objectOutputStream;
     private final ObjectInputStream objectInputStream;
-    private GamePlayer player;
+    private Player player;
     private GameManager gameManager;
     private boolean playerTurn = true;
+
+    private static ArrayList<GamePlayer> players = new ArrayList<>();
 
     public ClientHandler(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
@@ -35,17 +38,17 @@ public class ClientHandler implements Runnable {
         this.objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
     }
 
-    public GamePlayer getPlayer() {
+    public Player getPlayer() {
         return player;
     }
 
-    public void setupPlayer() throws ClassNotFoundException, IOException {
+    private void setupPlayer() throws ClassNotFoundException, IOException {
         transmitRequestUsername("Enter your username:");
         ServerPacket serverPacket = (ServerPacket) objectInputStream.readObject();
         handlePacket(serverPacket);
     }
 
-    public void setupGameSettings(int currentPlayers) throws ClassNotFoundException, IOException {
+    private void setupGameSettings(int currentPlayers) throws ClassNotFoundException, IOException {
         if (currentPlayers == 1) {
             transmitRequestGameSettings("Enter the number of players (2, 3, 4, or 6)", "Enter the game variant (default)");
             ServerPacket serverPacket = (ServerPacket) objectInputStream.readObject();
@@ -132,7 +135,7 @@ public class ClientHandler implements Runnable {
 
             GameServer.moveToNextTurn();
         } else {
-            transmitInvalidMove(move);
+            this.transmitInvalidMove(move);
             transmitTurnUpdate("Move was invalid. Try again, it's your turn!");
         }
     }
@@ -152,7 +155,6 @@ public class ClientHandler implements Runnable {
         System.out.println("Received game type: " + gameType);
 
         GameServer.setNumberOfPlayers(numberOfPlayers);
-        
         GameManagerSingleton.setInstance(new StandardGameManager(gameType, numberOfPlayers));
         transmitMessage("Game settings applied: " + numberOfPlayers + " players, variant: " + gameType);
     }
@@ -176,7 +178,7 @@ public class ClientHandler implements Runnable {
 
                 if (GameServer.clientHandlers.size() == GameServer.getNumberOfPlayers()) {
                     GameServer.broadcastMessage("The game is starting!", null);
-
+                  
                     GameServer.moveToNextTurn();
                 }
             }

@@ -158,7 +158,7 @@ public class GameClient {
             throw new InvalidGameSettingsException("Invalid game type: " + gameType);
         }
     }
-
+  
     private void sendPacketToServer(ServerPacket packet, ObjectOutputStream objectOutputStream) {
         try {
             objectOutputStream.writeObject(packet);

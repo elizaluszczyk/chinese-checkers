@@ -1,7 +1,5 @@
 package com.example.trylma.packets;
 
-import java.util.ArrayList;
-
 import com.example.trylma.interfaces.Board;
 import com.example.trylma.server.ServerPacket;
 
@@ -16,5 +14,4 @@ public class BoardUpdatePacket implements ServerPacket {
     public Board getBoard() {
         return board;
     }
-
 }

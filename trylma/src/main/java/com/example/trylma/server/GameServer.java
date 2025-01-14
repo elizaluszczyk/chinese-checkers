@@ -6,7 +6,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Random;
 
-import com.example.trylma.board.Move;
 import com.example.trylma.interfaces.Board;
 import com.example.trylma.interfaces.GameManager;
 
@@ -47,25 +46,28 @@ public class GameServer {
 
     private static void notifyCurrentPlayer() {
         ClientHandler currentHandler = clientHandlers.get(currentPlayerIndex);
+        System.out.println("Notifying player " + currentHandler.getPlayer().getUsername() + " that it's their turn.");
         currentHandler.transmitTurnUpdate("It's your turn!");
     }
 
-    private static void incrementPlayerIndex() {
-        currentPlayerIndex = (currentPlayerIndex + 1) % GameServer.clientHandlers.size();
+    private static int getCurrentPlayerIndex() {
+        return currentPlayerIndex;
     }
 
-    private static int setCurrentPlayerIndex(int currentPlayerIndex) {
-        return GameServer.currentPlayerIndex = currentPlayerIndex;
+    public static void setCurrentPlayerIndex(int index) {
+        currentPlayerIndex = index;
+    }
+
+    private static void incrementPlayerIndex() {
+        currentPlayerIndex = (currentPlayerIndex + 1) % clientHandlers.size();
     }
 
     public static void moveToNextTurn() {
         Random random = new Random();
         int randomIndex = random.nextInt(clientHandlers.size());
-        System.out.println("Random index: " + randomIndex);
 
         if (GameServer.currentPlayerIndex == null) {
             GameServer.setCurrentPlayerIndex(randomIndex);
-            System.out.println("In loop");
         } 
         
         ClientHandler currentHandler = GameServer.clientHandlers.get(GameServer.currentPlayerIndex);
@@ -94,12 +96,6 @@ public class GameServer {
     public static synchronized void broadcastBoardUpdate(Board board, ClientHandler sender) {
         for (ClientHandler client : clientHandlers) {
             client.transmitBoardUpdate(board);
-        }
-    }
-
-    public static synchronized void broadcastInvalidMove(Move invalidMove, ClientHandler sender) {
-        for (ClientHandler client : clientHandlers) {
-            client.transmitInvalidMove(invalidMove);
         }
     }
 }
