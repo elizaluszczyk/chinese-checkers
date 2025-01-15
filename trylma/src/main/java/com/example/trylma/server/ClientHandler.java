@@ -153,7 +153,6 @@ public class ClientHandler implements Runnable {
         System.out.println("Received game type: " + gameType);
 
         GameServer.setNumberOfPlayers(numberOfPlayers);
-        GameManagerSingleton.setInstance(new StandardGameManager(gameType, numberOfPlayers));
         transmitMessage("Game settings applied: " + numberOfPlayers + " players, variant: " + gameType);
     }
 
@@ -176,6 +175,7 @@ public class ClientHandler implements Runnable {
                 setupGameSettings(GameServer.clientHandlers.size());
 
                 if (GameServer.clientHandlers.size() == GameServer.getNumberOfPlayers()) {
+                    GameManagerSingleton.setInstance(new StandardGameManager("default", GameServer.getNumberOfPlayers()));
                     GameServer.broadcastMessage("The game is starting!", null);
                   
                     GameServer.moveToNextTurn();

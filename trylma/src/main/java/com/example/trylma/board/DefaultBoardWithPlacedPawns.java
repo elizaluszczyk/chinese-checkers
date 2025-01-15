@@ -8,19 +8,11 @@ import com.example.trylma.interfaces.Player;
 import com.example.trylma.server.GameServer;
 
 public class DefaultBoardWithPlacedPawns extends ChineseCheckersBoard {
-    // private final int numberOfPlayers;
-    // private ArrayList<ArrayList<Field>> startingPositions;
-    // ArrayList<GamePlayer> listOfPlayers = ClientHandler.getAllPlayers();
-    // GamePlayer gamePlayer1 = new GamePlayer("adam");
-    // GamePlayer gamePlayer2 = new GamePlayer("karol");
-    // ArrayList<GamePlayer> listOfPlayers = new ArrayList<>(Arrays.asList(gamePlayer1, gamePlayer2));
-
-    ArrayList<Player> listOfPlayers = new ArrayList<>(GameServer.getAllPlayers());
+    private final ArrayList<Player> listOfPlayers;
 
     public DefaultBoardWithPlacedPawns(int numberOfPlayers) {
-        super(5);
-        // this.numberOfPlayers = numberOfPlayers;
-        // this.startingPositions = new ArrayList<>();
+        super(5); 
+        this.listOfPlayers = new ArrayList<>(GameServer.getAllPlayers());
         setStartingAndTargetPositions(numberOfPlayers);
         placePawns();
     }
