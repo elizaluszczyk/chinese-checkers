@@ -60,8 +60,10 @@ public class StandardField implements Field, Serializable {
     public String toString() {
         if (!active) {
             return "{ }";
-        } else {
+        } else if (!occupied){
             return "{*}";
+        } else {
+            return "{@}";
         }
     }
 }
