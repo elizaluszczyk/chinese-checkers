@@ -9,18 +9,25 @@ import com.example.trylma.factories.BoardFactory;
 import com.example.trylma.interfaces.Board;
 import com.example.trylma.interfaces.Field;
 import com.example.trylma.interfaces.GameManager;
+import com.example.trylma.server.ClientHandler;
+
+import static com.example.trylma.server.GameServer.broadcastBoardUpdate;
+import static com.example.trylma.server.GameServer.broadcastMessage;
 
 public class StandardGameManager implements GameManager {
     private final Board board;
 
     public StandardGameManager(String gameType, int numberOfPlayers) {
         this.board = BoardFactory.createBoard(gameType, numberOfPlayers);
+
     }
 
     @Override
     public Board getBoard() {
         return board;
     }
+
+
 
     @Override
     public boolean isMoveValid(Move move) {
@@ -51,11 +58,24 @@ public class StandardGameManager implements GameManager {
         return isValidJump(move.getStartX(), move.getEndX(), move.getStartY(), move.getEndY());
     }
 
-    @Override
+//    @Override
     public void applyMove(Move move) {
-        //TODO
+        Field startField = board.getField(move.getStartX(), move.getStartY());
+        Field endField = board.getField(move.getEndX(), move.getEndY());
+//        broadcastMessage(endField.toString(), null);
+//        broadcastMessage(startField.toString(), null);
+//        board.getField(0,12).setOccupied(false);
+//        broadcastMessage(board.getField(0,12).toString(), null);
+
+        endField.setOccupied(true);
+        endField.setPawn(startField.getPawn());
+        startField.setOccupied(false);
+        startField.setPawn(null);
+//        broadcastBoardUpdate(board, null);
+
+
     }
-  
+
     private boolean isValidJump(int startX, int endX, int startY, int endY) {
         Queue<int[]> queue = new LinkedList<>();
         HashSet<String> visited = new HashSet<>();
@@ -64,7 +84,7 @@ public class StandardGameManager implements GameManager {
         visited.add(startX + "," + startY);
 
         int[][] directions = {
-            {4, 0}, {-4, 0}, {2, 2}, {-2, -2}, {2, -2}, {-2, 2} 
+            {4, 0}, {-4, 0}, {2, 2}, {-2, -2}, {2, -2}, {-2, 2}
         };
 
         while(!queue.isEmpty()) {
@@ -106,5 +126,5 @@ public class StandardGameManager implements GameManager {
         }
 
         return false;
-    }  
+    }
 }
