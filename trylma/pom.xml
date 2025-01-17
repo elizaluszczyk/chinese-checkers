@@ -46,6 +46,16 @@
       <artifactId>jackson-databind</artifactId>
       <version>2.15.2</version>
   </dependency>
+    <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-controls</artifactId>
+        <version>17</version>
+    </dependency>
+    <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-fxml</artifactId>
+        <version>17</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -102,7 +112,13 @@
             </execution>
           </executions>
           <configuration>
-            <mainClass>com.example.trylma.App</mainClass>
+            <mainClass>com.example.trylma.MainApp</mainClass>
+             <arguments>
+                    <argument>--module-path</argument>
+                    <argument>${javafx.sdk.lib}</argument>
+                    <argument>--add-modules</argument>
+                    <argument>javafx.controls,javafx.fxml</argument>
+                </arguments>
           </configuration>
         </plugin>
 
