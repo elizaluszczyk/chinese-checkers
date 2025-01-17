@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
@@ -15,6 +16,7 @@ import com.example.trylma.exceptions.InvalidGameSettingsException;
 import com.example.trylma.exceptions.InvalidMoveException;
 import com.example.trylma.game.GameType;
 import com.example.trylma.interfaces.Board;
+import com.example.trylma.interfaces.ClientObserver;
 import com.example.trylma.packets.BoardUpdatePacket;
 import com.example.trylma.packets.GameSettingsPacket;
 import com.example.trylma.packets.InvalidMovePacket;
@@ -37,9 +39,19 @@ public class GameClient {
     public ObjectOutputStream objectOutputStream;
     public ObjectInputStream objectInputStream;
 
+    public final ArrayList<ClientObserver> clientObservers = new ArrayList<>();
+
     public GameClient(String serverAddress, int port) {
         this.serverAddress = serverAddress;
         this.port = port;
+    }
+
+    public void addObserver(ClientObserver observer) {
+        this.clientObservers.add(observer);
+    }
+
+    public void removeObserver(ClientObserver observer) {
+        this.clientObservers.remove(observer);
     }
 
     public void start(boolean takeUserInput) {
@@ -188,7 +200,13 @@ public class GameClient {
         }
         return new TextMessagePacket(input);
     }
-    
+
+    private void notifyAllOnPacket(ServerPacket packet) {
+        for (ClientObserver observer : this.clientObservers) {
+            observer.notifyPacket(packet);
+        }
+    }    
+
     private void handlePacket(ServerPacket packet) throws IOException {
         if (packet instanceof TextMessagePacket textMessagePacket) {
             handleTextMessage(textMessagePacket);
@@ -204,7 +222,9 @@ public class GameClient {
             handleInvalidMove(invalidMovePacket);
         } else {
             System.err.println("Unknown packet type received.");
+            return;
         }
+        this.notifyAllOnPacket(packet);
     }
 
     private void handleTextMessage(TextMessagePacket packet) {
