@@ -34,44 +34,58 @@ public class GameClient {
     private final Queue<String> queue = new LinkedList<>();
     private boolean waitingForUsername = false;
     private boolean waitingForGameSettings = false;
+    public ObjectOutputStream objectOutputStream;
+    public ObjectInputStream objectInputStream;
 
     public GameClient(String serverAddress, int port) {
         this.serverAddress = serverAddress;
         this.port = port;
     }
 
-    public void start() {
-        try (Socket socket = new Socket(serverAddress, port);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());) {
+    public void start(boolean takeUserInput) {
+        try (Socket socket = new Socket(serverAddress, port);) {
+
+            this.objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            this.objectInputStream = new ObjectInputStream(socket.getInputStream());
 
             System.out.println("Connected to server: " + serverAddress + ":" + port);
 
-            Thread receiveThread = new Thread(() -> {
-               try {
-                   while (true) { 
-                       ServerPacket serverPacket = (ServerPacket) objectInputStream.readObject(); 
-                       handlePacket(serverPacket);
-                   }
-               } catch (IOException | ClassNotFoundException e) {
-                System.err.println("Connection to server lost: " + e.getMessage());
-               }
-            });
-            receiveThread.start();
-
-            System.out.println("You can send messages now (type 'exit' to quit)");
-            
-            while (true) { 
-                getInputFromPlayer("");
-                if (queue.peek() == null) {
-                    continue;
+            if (takeUserInput) {
+                Thread receiveThread = new Thread(() -> {
+                try {
+                    while (true) { 
+                        ServerPacket serverPacket = (ServerPacket) objectInputStream.readObject(); 
+                        handlePacket(serverPacket);
+                    }
+                } catch (IOException | ClassNotFoundException e) {
+                    System.err.println("Connection to server lost: " + e.getMessage());
                 }
-                if (queue.peek().equalsIgnoreCase("exit")) {
-                    System.out.println("Disconnecting...");
-                    break;
-                }
+                });
+                receiveThread.start();
 
-                handleUserInput(objectOutputStream);
+                System.out.println("You can send messages now (type 'exit' to quit)");
+                
+                while (true) { 
+                    getInputFromPlayer("");
+                    if (queue.peek() == null) {
+                        continue;
+                    }
+                    if (queue.peek().equalsIgnoreCase("exit")) {
+                        System.out.println("Disconnecting...");
+                        break;
+                    }
+
+                    handleUserInput(objectOutputStream);
+                }
+            } else {
+                try {
+                    while (true) { 
+                        ServerPacket serverPacket = (ServerPacket) objectInputStream.readObject(); 
+                        handlePacket(serverPacket);
+                    }
+                } catch (IOException | ClassNotFoundException e) {
+                    System.err.println("Connection to server lost: " + e.getMessage());
+                }
             }
 
         } catch (IOException e) {
