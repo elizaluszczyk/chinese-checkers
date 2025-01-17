@@ -25,7 +25,7 @@ public class App {
            case "client" -> {
                 String serverAddress = "localhost";
                 GameClient client = new GameClient(serverAddress, port);
-                client.start();
+                client.start(true);
            }
             default -> System.out.println("Invalid argument. Please specify 'server' or 'client'.");
        }
