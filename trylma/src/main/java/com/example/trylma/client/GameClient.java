@@ -173,7 +173,7 @@ public class GameClient {
         }
     }
   
-    private void sendPacketToServer(ServerPacket packet, ObjectOutputStream objectOutputStream) {
+    public void sendPacketToServer(ServerPacket packet, ObjectOutputStream objectOutputStream) {
         try {
             objectOutputStream.writeObject(packet);
             objectOutputStream.flush();
@@ -247,5 +247,9 @@ public class GameClient {
     private void handleInvalidMove(InvalidMovePacket packet) {
         Move invalidMove = packet.getInvalidMove();
         System.out.println("Received invalid move: " + invalidMove);
+    }
+
+    public ObjectOutputStream getObjectOutputStream() {
+        return this.objectOutputStream;
     }
 }
