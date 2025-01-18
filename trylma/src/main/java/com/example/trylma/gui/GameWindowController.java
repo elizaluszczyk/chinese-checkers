@@ -98,10 +98,11 @@ public class GameWindowController implements ClientObserver {
         grid.setVgap(10);
     
         ChoiceBox<Integer> playerCountDropdown = new ChoiceBox<>();
-        for (int i = 1; i <= 6; i++) {
-            playerCountDropdown.getItems().add(i);
-        }
-        playerCountDropdown.setValue(1);
+        playerCountDropdown.getItems().add(2);
+        playerCountDropdown.getItems().add(3);
+        playerCountDropdown.getItems().add(4);
+        playerCountDropdown.getItems().add(6);
+        playerCountDropdown.setValue(2);
     
         ChoiceBox<String> gameTypeDropdownField = new ChoiceBox<>();
         gameTypeDropdownField.getItems().add("default");
