@@ -67,11 +67,12 @@ public class ClientHandler implements Runnable {
     }
 
     private boolean validateGameType(String gameType) {
-        if (!GameType.isValid(gameType)) {
+        if (GameType.fromString(gameType) != null) {
+            return true;
+        } else {
             transmitInvalidGameSettings("Invalid game type, enter settings again");
             return false;
         }
-        return true;
     }
 
     public void transmitMessage(String message) {
