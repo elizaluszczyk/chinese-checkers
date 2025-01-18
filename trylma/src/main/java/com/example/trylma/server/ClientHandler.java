@@ -22,6 +22,7 @@ import com.example.trylma.packets.RequestUsernamePacket;
 import com.example.trylma.packets.TextMessagePacket;
 import com.example.trylma.packets.TurnUpdatePacket;
 import com.example.trylma.packets.UsernamePacket;
+import com.example.trylma.packets.WinPacket;
 
 public class ClientHandler implements Runnable {
 
@@ -107,6 +108,10 @@ public class ClientHandler implements Runnable {
         transmitPacket(new InvalidGameSettingsPacket(message));
     }
 
+    public void transmitWin(String message) {
+        transmitPacket(new WinPacket(message));
+    }
+
     private void transmitPacket(ServerPacket packet) {
         try {
             System.out.println("Sending packet: " + packet.getClass().getName());
@@ -148,15 +153,21 @@ public class ClientHandler implements Runnable {
             return;
         }
 
-        if (gameManager.isMoveValid(move)) {
+        if (gameManager.isMoveValid(move, this.getPlayer())) {
             gameManager.applyMove(move);
 
             Board updatedBoard = gameManager.getBoard();
             GameServer.broadcastBoardUpdate(updatedBoard, this);
 
+           if (gameManager.isWinningMove(move, this.getPlayer())) {
+                transmitWin("You win! End of the game");
+                GameServer.broadcastMessage("Player " + this.getPlayer().getUsername() + " won! End of the game", this);
+                // TODO
+            }
+
             GameServer.moveToNextTurn();
         } else {
-            this.transmitInvalidMove(move);
+            transmitInvalidMove(move);
             transmitTurnUpdate("Move was invalid. Try again, it's your turn!");
         }
     }
