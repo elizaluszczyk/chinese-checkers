@@ -25,10 +25,9 @@ public class StandardMoveParser implements MoveParser {
             int x2 = Integer.parseInt(endPosition[0]);
             int y2 = Integer.parseInt(endPosition[1]);
 
-            return new Move(x1, y1, x2, y2);
+            return new Move(y1, x1, y2, x2);
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
             throw new InvalidMoveException("Invalid move coordinates. Ensure the format is 'x1,y1 TO x2,y2'.");
         }
     }
-
 }
