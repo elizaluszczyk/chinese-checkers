@@ -13,6 +13,7 @@ import com.example.trylma.interfaces.Player;
 public class GameServer {
     private final int port;
     private static int numberOfPlayers = 0;
+    private static String gameType = null;
     protected static final ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
     protected static final ArrayList<Player> players = new ArrayList<>();
     protected static GameManager gameManager;
@@ -44,6 +45,14 @@ public class GameServer {
 
     public static void setNumberOfPlayers(int numberOfPlayers) {
         GameServer.numberOfPlayers = numberOfPlayers;
+    }
+
+    public static String getGameType() {
+        return gameType;
+    }
+
+    public static void setGameType(String gameType) {
+        GameServer.gameType = gameType;
     }
 
     private static void notifyCurrentPlayer() {
