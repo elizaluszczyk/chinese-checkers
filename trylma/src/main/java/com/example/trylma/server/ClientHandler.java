@@ -200,6 +200,7 @@ public class ClientHandler implements Runnable {
     private void cleanup() {
         synchronized (GameServer.class) {
             GameServer.clientHandlers.remove(this);
+            GameServer.players.remove(this.getPlayer());
             if (player != null) {
                 GameServer.broadcastMessage(player.getUsername() + " has left the game.", null);
             }

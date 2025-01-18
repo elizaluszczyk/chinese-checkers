@@ -1,0 +1,32 @@
+package com.example.trylma.gui;
+
+import java.io.IOException;
+
+import com.example.trylma.MainApp;
+
+import javafx.fxml.FXML;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+
+public class UsernameController {
+    @FXML
+    private TextField usernameTextField;
+
+    @FXML
+    private Label enterUsernameLabel;
+
+    @FXML
+    private void handleOkButtonAction() throws IOException {
+        String username = usernameTextField.getText();
+
+        if (!username.isEmpty()) {
+            enterUsernameLabel.setText("Hello, " + username + "!");
+            MainApp.setUsername(username);
+            MainApp.setRoot("/blank.fxml");
+        }
+        else {
+            enterUsernameLabel.setText("Username can't be empty!");
+        }
+    }
+
+}

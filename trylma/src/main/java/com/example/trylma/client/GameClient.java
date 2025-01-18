@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
@@ -15,6 +16,7 @@ import com.example.trylma.exceptions.InvalidGameSettingsException;
 import com.example.trylma.exceptions.InvalidMoveException;
 import com.example.trylma.game.GameType;
 import com.example.trylma.interfaces.Board;
+import com.example.trylma.interfaces.ClientObserver;
 import com.example.trylma.packets.BoardUpdatePacket;
 import com.example.trylma.packets.GameSettingsPacket;
 import com.example.trylma.packets.InvalidMovePacket;
@@ -34,44 +36,68 @@ public class GameClient {
     private final Queue<String> queue = new LinkedList<>();
     private boolean waitingForUsername = false;
     private boolean waitingForGameSettings = false;
+    public ObjectOutputStream objectOutputStream;
+    public ObjectInputStream objectInputStream;
+
+    public final ArrayList<ClientObserver> clientObservers = new ArrayList<>();
 
     public GameClient(String serverAddress, int port) {
         this.serverAddress = serverAddress;
         this.port = port;
     }
 
-    public void start() {
-        try (Socket socket = new Socket(serverAddress, port);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());) {
+    public void addObserver(ClientObserver observer) {
+        this.clientObservers.add(observer);
+    }
+
+    public void removeObserver(ClientObserver observer) {
+        this.clientObservers.remove(observer);
+    }
+
+    public void start(boolean takeUserInput) {
+        try (Socket socket = new Socket(serverAddress, port);) {
+
+            this.objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            this.objectInputStream = new ObjectInputStream(socket.getInputStream());
 
             System.out.println("Connected to server: " + serverAddress + ":" + port);
 
-            Thread receiveThread = new Thread(() -> {
-               try {
-                   while (true) { 
-                       ServerPacket serverPacket = (ServerPacket) objectInputStream.readObject(); 
-                       handlePacket(serverPacket);
-                   }
-               } catch (IOException | ClassNotFoundException e) {
-                System.err.println("Connection to server lost: " + e.getMessage());
-               }
-            });
-            receiveThread.start();
-
-            System.out.println("You can send messages now (type 'exit' to quit)");
-            
-            while (true) { 
-                getInputFromPlayer("");
-                if (queue.peek() == null) {
-                    continue;
+            if (takeUserInput) {
+                Thread receiveThread = new Thread(() -> {
+                try {
+                    while (true) { 
+                        ServerPacket serverPacket = (ServerPacket) objectInputStream.readObject(); 
+                        handlePacket(serverPacket);
+                    }
+                } catch (IOException | ClassNotFoundException e) {
+                    System.err.println("Connection to server lost: " + e.getMessage());
                 }
-                if (queue.peek().equalsIgnoreCase("exit")) {
-                    System.out.println("Disconnecting...");
-                    break;
-                }
+                });
+                receiveThread.start();
 
-                handleUserInput(objectOutputStream);
+                System.out.println("You can send messages now (type 'exit' to quit)");
+                
+                while (true) { 
+                    getInputFromPlayer("");
+                    if (queue.peek() == null) {
+                        continue;
+                    }
+                    if (queue.peek().equalsIgnoreCase("exit")) {
+                        System.out.println("Disconnecting...");
+                        break;
+                    }
+
+                    handleUserInput(objectOutputStream);
+                }
+            } else {
+                try {
+                    while (true) { 
+                        ServerPacket serverPacket = (ServerPacket) objectInputStream.readObject(); 
+                        handlePacket(serverPacket);
+                    }
+                } catch (IOException | ClassNotFoundException e) {
+                    System.err.println("Connection to server lost: " + e.getMessage());
+                }
             }
 
         } catch (IOException e) {
@@ -159,7 +185,7 @@ public class GameClient {
         }
     }
   
-    private void sendPacketToServer(ServerPacket packet, ObjectOutputStream objectOutputStream) {
+    public void sendPacketToServer(ServerPacket packet, ObjectOutputStream objectOutputStream) {
         try {
             objectOutputStream.writeObject(packet);
             objectOutputStream.flush();
@@ -174,7 +200,13 @@ public class GameClient {
         }
         return new TextMessagePacket(input);
     }
-    
+
+    private void notifyAllOnPacket(ServerPacket packet) {
+        for (ClientObserver observer : this.clientObservers) {
+            observer.notifyPacket(packet);
+        }
+    }    
+
     private void handlePacket(ServerPacket packet) throws IOException {
         if (packet instanceof TextMessagePacket textMessagePacket) {
             handleTextMessage(textMessagePacket);
@@ -190,7 +222,9 @@ public class GameClient {
             handleInvalidMove(invalidMovePacket);
         } else {
             System.err.println("Unknown packet type received.");
+            return;
         }
+        this.notifyAllOnPacket(packet);
     }
 
     private void handleTextMessage(TextMessagePacket packet) {
@@ -233,5 +267,9 @@ public class GameClient {
     private void handleInvalidMove(InvalidMovePacket packet) {
         Move invalidMove = packet.getInvalidMove();
         System.out.println("Received invalid move: " + invalidMove);
+    }
+
+    public ObjectOutputStream getObjectOutputStream() {
+        return this.objectOutputStream;
     }
 }
