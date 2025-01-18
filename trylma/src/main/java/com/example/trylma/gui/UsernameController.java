@@ -20,7 +20,6 @@ public class UsernameController {
         String username = usernameTextField.getText();
 
         if (!username.isEmpty()) {
-            enterUsernameLabel.setText("Hello, " + username + "!");
             MainApp.setUsername(username);
             MainApp.setRoot("/blank.fxml");
         }
