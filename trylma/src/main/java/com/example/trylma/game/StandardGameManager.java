@@ -22,10 +22,10 @@ public class StandardGameManager implements GameManager {
 
     }
 
-    @Override
     public Board getBoard() {
         return board;
     }
+
 
 
 

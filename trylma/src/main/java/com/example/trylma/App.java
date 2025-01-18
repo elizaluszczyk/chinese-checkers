@@ -1,13 +1,11 @@
 package com.example.trylma;
 
+import com.example.trylma.board.DefaultBoardWithPlacedPawns;
 import com.example.trylma.client.GameClient;
 import com.example.trylma.server.GameServer;
 
 public class App {
     public static void main(String[] args) {
-    // DefaultBoardWithPlacedPawns board = new DefaultBoardWithPlacedPawns(2);
-    //board.printBoard();
-    // board.printStartingPositions();
        if (args.length == 0) {
             System.out.println("Please specify 'server' or 'client' as an argument.");
             return;
