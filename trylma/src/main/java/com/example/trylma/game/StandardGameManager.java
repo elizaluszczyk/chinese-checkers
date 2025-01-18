@@ -9,10 +9,6 @@ import com.example.trylma.factories.BoardFactory;
 import com.example.trylma.interfaces.Board;
 import com.example.trylma.interfaces.Field;
 import com.example.trylma.interfaces.GameManager;
-import com.example.trylma.server.ClientHandler;
-
-import static com.example.trylma.server.GameServer.broadcastBoardUpdate;
-import static com.example.trylma.server.GameServer.broadcastMessage;
 
 public class StandardGameManager implements GameManager {
     private final Board board;
@@ -58,22 +54,18 @@ public class StandardGameManager implements GameManager {
         return isValidJump(move.getStartX(), move.getEndX(), move.getStartY(), move.getEndY());
     }
 
-//    @Override
+    @Override
     public void applyMove(Move move) {
         Field startField = board.getField(move.getStartX(), move.getStartY());
         Field endField = board.getField(move.getEndX(), move.getEndY());
-//        broadcastMessage(endField.toString(), null);
-//        broadcastMessage(startField.toString(), null);
-//        board.getField(0,12).setOccupied(false);
-//        broadcastMessage(board.getField(0,12).toString(), null);
 
         endField.setOccupied(true);
         endField.setPawn(startField.getPawn());
         startField.setOccupied(false);
         startField.setPawn(null);
-//        broadcastBoardUpdate(board, null);
 
-
+        board.updateField(startField);
+        board.updateField(endField);
     }
 
     private boolean isValidJump(int startX, int endX, int startY, int endY) {
