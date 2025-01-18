@@ -1,14 +1,17 @@
 package com.example.trylma.game;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
 import com.example.trylma.board.Move;
+import com.example.trylma.board.Pawn;
 import com.example.trylma.factories.BoardFactory;
 import com.example.trylma.interfaces.Board;
 import com.example.trylma.interfaces.Field;
 import com.example.trylma.interfaces.GameManager;
+import com.example.trylma.interfaces.Player;
 
 public class StandardGameManager implements GameManager {
     private final Board board;
@@ -24,7 +27,7 @@ public class StandardGameManager implements GameManager {
     }
 
     @Override
-    public boolean isMoveValid(Move move) {
+    public boolean isMoveValid(Move move, Player player) {
         Field startField = board.getField(move.getStartX(), move.getStartY());
         Field endField = board.getField(move.getEndX(), move.getEndY());
 
@@ -37,6 +40,10 @@ public class StandardGameManager implements GameManager {
         }
 
         if (!startField.isOccupied() || endField.isOccupied()) {
+            return false;
+        }
+
+        if (!player.getPawns().contains(startField.getPawn())) {
             return false;
         }
 
@@ -61,6 +68,32 @@ public class StandardGameManager implements GameManager {
         endField.setPawn(startField.getPawn());
         startField.setOccupied(false);
         startField.setPawn(null);
+    }
+
+    @Override
+    public boolean isWinningMove(Move move, Player player) {
+        boolean allPawnsOnTarget = true;
+
+        for (Pawn pawn : player.getPawns()) {
+            Field pawnField = pawn.getCurrentField();
+
+            ArrayList<Field> targetPositions = player.getTargetPositions();
+
+            boolean isOnTarget = false;
+            for (Field targetField : targetPositions) {
+                if (pawnField.equals(targetField)) {
+                    isOnTarget = true;
+                    break;
+                }
+            }
+
+            if (!isOnTarget) {
+                allPawnsOnTarget = false;
+                break; 
+            }
+        }
+        
+        return allPawnsOnTarget;
     }
 
     private boolean isValidJump(int startX, int endX, int startY, int endY) {

@@ -4,6 +4,7 @@ import com.example.trylma.board.Move;
 
 public interface GameManager {
     Board getBoard();
-    boolean isMoveValid(Move move);
+    boolean isMoveValid(Move move, Player player);
     void applyMove(Move move);
+    boolean isWinningMove(Move move, Player player);
 }
