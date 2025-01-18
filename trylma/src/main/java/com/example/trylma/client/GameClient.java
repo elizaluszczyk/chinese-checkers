@@ -12,13 +12,12 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 
 import com.example.trylma.board.Move;
-import com.example.trylma.exceptions.InvalidGameSettingsException;
 import com.example.trylma.exceptions.InvalidMoveException;
-import com.example.trylma.game.GameType;
 import com.example.trylma.interfaces.Board;
 import com.example.trylma.interfaces.ClientObserver;
 import com.example.trylma.packets.BoardUpdatePacket;
 import com.example.trylma.packets.GameSettingsPacket;
+import com.example.trylma.packets.InvalidGameSettingsPacket;
 import com.example.trylma.packets.InvalidMovePacket;
 import com.example.trylma.packets.MovePacket;
 import com.example.trylma.packets.RequestGameSettingsPacket;
@@ -141,18 +140,11 @@ public class GameClient {
 
             try {
                 numberOfPlayers = Integer.parseInt(numberOfPlayersString);
-                validateNumberOfPlayers(numberOfPlayers);
-            } catch (NumberFormatException | InvalidGameSettingsException e) {
+            } catch (NumberFormatException e) {
                 System.out.println("Invalid number of players, enter settings again");
                 return;
             }
 
-            try {
-                validateGameType(gameTypeString);
-            } catch (InvalidGameSettingsException e) {
-                System.out.println("Invalid game type, enter settings again");
-                return;
-            }
 
             GameSettingsPacket gameSettingsPacket = new GameSettingsPacket(numberOfPlayers, gameTypeString);
             sendPacketToServer(gameSettingsPacket, objectOutputStream);
@@ -170,18 +162,6 @@ public class GameClient {
             System.err.println("Invalid input: " + e.getMessage());
         } catch (NoSuchElementException e) {
             System.err.println("Missing element:" + e.getMessage());
-        }
-    }
-
-    private void validateNumberOfPlayers(int numberOfPlayers) throws InvalidGameSettingsException {
-        if (numberOfPlayers < 2 || numberOfPlayers == 5 || numberOfPlayers > 6) {
-            throw new InvalidGameSettingsException("Invalid number of players.");
-        }
-    }
-
-    private void validateGameType(String gameType) throws InvalidGameSettingsException {
-        if (!GameType.isValid(gameType)) {
-            throw new InvalidGameSettingsException("Invalid game type: " + gameType);
         }
     }
   
@@ -220,6 +200,8 @@ public class GameClient {
             handleTurnUpdate(turnUpdatePacket);
         } else if (packet instanceof InvalidMovePacket invalidMovePacket) {
             handleInvalidMove(invalidMovePacket);
+        } else if (packet instanceof InvalidGameSettingsPacket invalidGameSettingsPacket) {
+            handleInvalidGameSettings(invalidGameSettingsPacket);
         } else {
             System.err.println("Unknown packet type received.");
             return;
@@ -267,6 +249,13 @@ public class GameClient {
     private void handleInvalidMove(InvalidMovePacket packet) {
         Move invalidMove = packet.getInvalidMove();
         System.out.println("Received invalid move: " + invalidMove);
+    }
+
+    private void handleInvalidGameSettings(InvalidGameSettingsPacket packet) {
+        String message = packet.getMessage();
+        System.out.println("Received invalid game settings: " + message);
+        this.waitingForGameSettings = true;
+        handleUserInput(objectOutputStream);
     }
 
     public ObjectOutputStream getObjectOutputStream() {

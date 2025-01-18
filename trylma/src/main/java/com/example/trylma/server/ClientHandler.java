@@ -7,12 +7,14 @@ import java.net.Socket;
 
 import com.example.trylma.board.Move;
 import com.example.trylma.game.GamePlayer;
+import com.example.trylma.game.GameType;
 import com.example.trylma.game.StandardGameManager;
 import com.example.trylma.interfaces.Board;
 import com.example.trylma.interfaces.GameManager;
 import com.example.trylma.interfaces.Player;
 import com.example.trylma.packets.BoardUpdatePacket;
 import com.example.trylma.packets.GameSettingsPacket;
+import com.example.trylma.packets.InvalidGameSettingsPacket;
 import com.example.trylma.packets.InvalidMovePacket;
 import com.example.trylma.packets.MovePacket;
 import com.example.trylma.packets.RequestGameSettingsPacket;
@@ -56,6 +58,22 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    private boolean validateNumberOfPlayers(int numberOfPlayers) {
+        if (numberOfPlayers < 2 || numberOfPlayers == 5 || numberOfPlayers > 6) {
+            transmitInvalidGameSettings("Invalid number of players, enter settings again");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateGameType(String gameType) {
+        if (!GameType.isValid(gameType)) {
+            transmitInvalidGameSettings("Invalid game type, enter settings again");
+            return false;
+        }
+        return true;
+    }
+
     public void transmitMessage(String message) {
         transmitPacket(new TextMessagePacket(message));
     }
@@ -82,6 +100,10 @@ public class ClientHandler implements Runnable {
 
     public void transmitTurnUpdate(String message) {
         transmitPacket(new TurnUpdatePacket(message));
+    }
+
+    public void transmitInvalidGameSettings(String message) {
+        transmitPacket(new InvalidGameSettingsPacket(message));
     }
 
     private void transmitPacket(ServerPacket packet) {
@@ -152,8 +174,11 @@ public class ClientHandler implements Runnable {
         String gameType = packet.getGameType();
         System.out.println("Received game type: " + gameType);
 
-        GameServer.setNumberOfPlayers(numberOfPlayers);
-        transmitMessage("Game settings applied: " + numberOfPlayers + " players, variant: " + gameType);
+        if (validateNumberOfPlayers(numberOfPlayers) && validateGameType(gameType)) {
+            GameServer.setNumberOfPlayers(numberOfPlayers);
+            GameServer.setGameType(gameType);
+            transmitMessage("Game settings applied: " + numberOfPlayers + " players, variant: " + gameType);
+        }       
     }
 
     private boolean isPlayerTurn() {
@@ -175,7 +200,7 @@ public class ClientHandler implements Runnable {
                 setupGameSettings(GameServer.clientHandlers.size());
 
                 if (GameServer.clientHandlers.size() == GameServer.getNumberOfPlayers()) {
-                    GameManagerSingleton.setInstance(new StandardGameManager("default", GameServer.getNumberOfPlayers()));
+                    GameManagerSingleton.setInstance(new StandardGameManager(GameServer.getGameType(), GameServer.getNumberOfPlayers()));
                     GameServer.broadcastMessage("The game is starting!", null);
                   
                     GameServer.moveToNextTurn();
