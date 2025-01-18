@@ -18,12 +18,10 @@ public class StandardGameManager implements GameManager {
 
     }
 
+    @Override
     public Board getBoard() {
         return board;
     }
-
-
-
 
     @Override
     public boolean isMoveValid(Move move) {
@@ -63,9 +61,6 @@ public class StandardGameManager implements GameManager {
         endField.setPawn(startField.getPawn());
         startField.setOccupied(false);
         startField.setPawn(null);
-
-        board.updateField(startField);
-        board.updateField(endField);
     }
 
     private boolean isValidJump(int startX, int endX, int startY, int endY) {

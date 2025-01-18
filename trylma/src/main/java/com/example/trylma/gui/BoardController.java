@@ -1,17 +1,18 @@
-package com.example.trylma;
+package com.example.trylma.gui;
 
-import com.example.trylma.board.DefaultBoardWithPlacedPawns;
-import com.example.trylma.interfaces.Field;
-import com.example.trylma.interfaces.Player;
-import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BoardController {
+import com.example.trylma.board.DefaultBoardWithPlacedPawns;
+import com.example.trylma.interfaces.Field;
+import com.example.trylma.interfaces.Player;
 
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+
+public class BoardController {
     private Map<String, CircleField> fieldsMap = new HashMap<>();
     private Pane pane;
     private ArrayList<ArrayList<CircleField>> circleFields = new ArrayList<>();
@@ -21,9 +22,7 @@ public class BoardController {
     private ArrayList<ArrayList<Circle>> armsOfStarCircles = new ArrayList<>();
     private final int hexagon = board.getHexagon();
 
-    public BoardController() {
-
-    }
+    public BoardController() {}
 
     public void placePawnsCircles(Pane pane) {
         for(Player player : listOfPlayers) {
@@ -38,7 +37,8 @@ public class BoardController {
             }
         }
     }
-    public void boardSetup(Pane pane){
+    
+    public void boardSetup(Pane pane) {
         createTriangleBoard(pane, 50);
         assignFields();
         mappingAllFields();
@@ -124,9 +124,11 @@ public class BoardController {
         }
 
     }
+
     private String generateKey(double x, double y) {
         return x + "," + y;
     }
+
     private void mappingAllFields() {
         System.out.println("Rozmiar circleFields: " + circleFields.size());
         System.out.println("Rozmiar board.getActiveFields(): " + board.getActiveFields().size());
@@ -141,5 +143,4 @@ public class BoardController {
         System.out.println("Total fields in map: " + fieldsMap.size());
         System.out.println("Total circles in GUI: " + circleFields.size());
     }
-//
 }

@@ -59,11 +59,11 @@ public class StandardField implements Field, Serializable {
     @Override
     public String toString() {
         if (!active) {
-            return "{ }";
+            return " ";
         } else if (!occupied){
-            return "{*}";
+            return "*";
         } else {
-            return "{@}";
+            return "@";
         }
     }
 }

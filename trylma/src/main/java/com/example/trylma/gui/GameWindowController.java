@@ -24,8 +24,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 
 public class GameWindowController implements ClientObserver {
-
-
     private final GameClient gameClient = new GameClient("localhost", 58901);
 
     @FXML

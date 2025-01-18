@@ -1,16 +1,15 @@
-package com.example.trylma;
+package com.example.trylma.gui;
 
 import com.example.trylma.interfaces.Field;
+
 import javafx.scene.shape.Circle;
 
-import javax.swing.plaf.PanelUI;
-
 public class CircleField extends Circle {
-
     private double centerX;
     private double centerY;
     private Field field = null;
     private CirclePawn pawn = null;
+    
     public CircleField(double x, double y, int size) {
         super(x, y,size);
     }

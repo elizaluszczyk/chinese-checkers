@@ -2,7 +2,6 @@ package com.example.trylma.board;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 import com.example.trylma.interfaces.Board;
 import com.example.trylma.interfaces.Field;
@@ -26,9 +25,6 @@ public class ChineseCheckersBoard implements Board, Serializable {
         selectActiveFields();
         this.armsOfStar = getFieldsInArmsOfStar(board);
     }
-    public int getHexagon() {
-        return hexagon;
-    }
 
     private void initializeBoard() {
         for (int y = 0; y < rows; y++) {
@@ -50,6 +46,7 @@ public class ChineseCheckersBoard implements Board, Serializable {
             numberOfActiveFields1--;
             numberOfInactiveFields1++;
         }
+
         int numberOfActiveFields2 = columns;
         int numberOfInactiveFields2 = 0;
         for (int y = rows - (hexagon); y >= 0; y--) {
@@ -60,7 +57,8 @@ public class ChineseCheckersBoard implements Board, Serializable {
             numberOfInactiveFields2++;
         }
     }
-    public void selectActiveFields() {
+
+    private void selectActiveFields() {
         for (int i = 0; i<board.size();i++) {
             ArrayList<Field> row = new ArrayList<>();
             for (int j = 0; j < board.get(i).size();j++) {
@@ -71,7 +69,7 @@ public class ChineseCheckersBoard implements Board, Serializable {
             activeFields.add(row);
         }
     }
-
+    
     private ArrayList<ArrayList<Field>> getFieldsInArmsOfStar(ArrayList<ArrayList<Field>> board) {
         ArrayList<Field> starArm1 = new ArrayList<>();
         for (int y = 0; y < hexagon - 1; y++) {
@@ -82,10 +80,10 @@ public class ChineseCheckersBoard implements Board, Serializable {
             }
         }
         armsOfStar.add(starArm1);
-
+        
         int numberOfInactiveFields2 = 0;
         int numberOfActiveFields2 = 2 * hexagon - 2;
-
+        
         ArrayList<Field> starArm2 = new ArrayList<>();
         for (int y = hexagon - 1; y < (2 * hexagon - 1); y++) {
             for (int x = numberOfInactiveFields2; x < numberOfActiveFields2; x++) {
@@ -98,7 +96,7 @@ public class ChineseCheckersBoard implements Board, Serializable {
 
         }
         armsOfStar.add(starArm2);
-
+        
         int numberOfActiveFields3 = 2 * hexagon - 2;
         int numberOfInactiveFields3 = 0;
         ArrayList<Field> starArm3 = new ArrayList<>();
@@ -112,7 +110,7 @@ public class ChineseCheckersBoard implements Board, Serializable {
             numberOfInactiveFields3++;
         }
         armsOfStar.add(starArm3);
-
+        
         ArrayList<Field> starArm4 = new ArrayList<>();
         for (int y = rows + 1 - hexagon; y < rows; y++) {
             for (Field field : board.get(y)) {
@@ -122,7 +120,7 @@ public class ChineseCheckersBoard implements Board, Serializable {
             }
         }
         armsOfStar.add(starArm4);
-
+        
         int numberOfInactiveFields5 = 0;
         ArrayList<Field> starArm5 = new ArrayList<>();
         for (int y = (3 * hexagon - 3); y > (2 * hexagon - 2); y--) {
@@ -135,7 +133,6 @@ public class ChineseCheckersBoard implements Board, Serializable {
         }
         armsOfStar.add(starArm5);
 
-
         int numberOfInactiveFields6 = 0;
         ArrayList<Field> starArm6 = new ArrayList<>();
         for (int y = hexagon - 1; y < (2 * hexagon - 1); y++) {
@@ -147,19 +144,19 @@ public class ChineseCheckersBoard implements Board, Serializable {
             numberOfInactiveFields6++;
         }
         armsOfStar.add(starArm6);
-
+        
         return armsOfStar;
-
     }
-
+    
     public void printStartingPositions() {
         for (int i = 0; i < armsOfStar.size(); i++) {
-            System.out.println("Współrzędne z ramiona nr " + (i + 1));
+            System.out.println("Coordinates of arm no. " + (i + 1));
             for (int j = 0; j < armsOfStar.get(i).size(); j++) {
                 System.out.println("pole: (" + armsOfStar.get(i).get(j).getX() + ", " + armsOfStar.get(i).get(j).getY() + " )");
             }
         }
     }
+
     public void printActiveFields() {
         for (int i = 0; i < activeFields.size(); i++) {
             for (int j = 0; j < activeFields.get(i).size(); j++) {
@@ -168,20 +165,12 @@ public class ChineseCheckersBoard implements Board, Serializable {
             System.out.println();
         }
     }
-
-    public ArrayList<ArrayList<Field>> getArmsOfStar() {
-        return this.armsOfStar;
-    }
-
-
-    public ArrayList<ArrayList<Field>> getActiveFields() {
-        return activeFields;
-    }
+    
     @Override
     public ArrayList<ArrayList<Field>> getBoard() {
         return board;
     }
-
+    
     @Override
     public Field getField(int x, int y) {
         if (x >= 0 && x < board.size() && y >= 0 && y < board.get(x).size()) {
@@ -189,35 +178,30 @@ public class ChineseCheckersBoard implements Board, Serializable {
         }
         return null;
     }
-
     
     @Override
     public void printBoard() {
-        for (List<Field> row : getBoard()) {
+        for (ArrayList<Field> row : getBoard()) {
             for (Field field : row) {
-                System.out.print(field.isActive() ? field.toString() : "{ }");
+                if (field.isActive()) {
+                    System.out.print(field.toString());
+                } else {
+                    System.out.print(" ");
+                }
             }
-            System.out.println();
+        System.out.println();
         }
     }
 
-    @Override
-    public void placePawns() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'placePawns'");
+    public int getHexagon() {
+        return hexagon;
     }
 
-
-//    public void printBoard() {
-//        for (List<Field> row : board) {
-//            for (Field field : row) {
-//                System.out.print(field.getActive() ? field.toString() : "{ }");
-//            }
-//            System.out.println();
-//        }
-//    }
+    public ArrayList<ArrayList<Field>> getArmsOfStar() {
+        return this.armsOfStar;
+    }
+    
+    public ArrayList<ArrayList<Field>> getActiveFields() {
+        return activeFields;
+    }
 }
-
-
-
-
