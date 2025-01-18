@@ -2,6 +2,7 @@ package com.example.trylma;
 
 import java.io.IOException;
 
+import com.example.trylma.client.GameClient;
 import com.example.trylma.server.GameServer;
 
 import javafx.application.Application;
@@ -27,6 +28,7 @@ public class MainApp extends Application {
         switch (mode) {
             case "server" -> startServer();
             case "client" -> launch(args);
+            case "client-cli" -> startClientCli();
             default -> System.out.println("Invalid argument. Please specify 'server' or 'client'.");
         }
     }
@@ -35,6 +37,10 @@ public class MainApp extends Application {
         System.out.println("Starting server...");
         GameServer server = new GameServer(PORT);
         server.start();
+    }
+
+    public static void startClientCli() {
+        new GameClient("localhost", PORT).start(true);
     }
 
     @Override
@@ -67,5 +73,4 @@ public class MainApp extends Application {
     public static void setUsername(String username) {
         MainApp.username = username;
     }
-
 } 
