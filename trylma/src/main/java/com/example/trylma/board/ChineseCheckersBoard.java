@@ -10,6 +10,7 @@ import com.example.trylma.interfaces.Field;
 public class ChineseCheckersBoard implements Board, Serializable {
     private static final long serialVersionUID = 1L;
     private final ArrayList<ArrayList<Field>> board;
+    private final ArrayList<ArrayList<Field>> activeFields = new ArrayList<>();
     private final int columns;
     private final int rows;
     private ArrayList<ArrayList<Field>> armsOfStar = new ArrayList<>();
@@ -22,7 +23,11 @@ public class ChineseCheckersBoard implements Board, Serializable {
         this.board = new ArrayList<>();
         initializeBoard();
         initializeFields(board);
+        selectActiveFields();
         this.armsOfStar = getFieldsInArmsOfStar(board);
+    }
+    public int getHexagon() {
+        return hexagon;
     }
 
     private void initializeBoard() {
@@ -53,6 +58,17 @@ public class ChineseCheckersBoard implements Board, Serializable {
             }
             numberOfActiveFields2--;
             numberOfInactiveFields2++;
+        }
+    }
+    public void selectActiveFields() {
+        for (int i = 0; i<board.size();i++) {
+            ArrayList<Field> row = new ArrayList<>();
+            for (int j = 0; j < board.get(i).size();j++) {
+                if (board.get(i).get(j).isActive()) {
+                    row.add(board.get(i).get(j));
+                }
+            }
+            activeFields.add(row);
         }
     }
 
@@ -144,12 +160,23 @@ public class ChineseCheckersBoard implements Board, Serializable {
             }
         }
     }
+    public void printActiveFields() {
+        for (int i = 0; i < activeFields.size(); i++) {
+            for (int j = 0; j < activeFields.get(i).size(); j++) {
+                System.out.print("(x: " + activeFields.get(i).get(j).getX() + ", y: " + activeFields.get(i).get(j).getY() + ") ;");
+            }
+            System.out.println();
+        }
+    }
 
     public ArrayList<ArrayList<Field>> getArmsOfStar() {
         return this.armsOfStar;
     }
 
 
+    public ArrayList<ArrayList<Field>> getActiveFields() {
+        return activeFields;
+    }
     @Override
     public ArrayList<ArrayList<Field>> getBoard() {
         return board;
