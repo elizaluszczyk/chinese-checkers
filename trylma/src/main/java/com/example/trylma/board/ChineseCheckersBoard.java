@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import com.example.trylma.interfaces.Board;
 import com.example.trylma.interfaces.Field;
+import com.example.trylma.interfaces.Player;
 
 public class ChineseCheckersBoard implements Board, Serializable {
     private static final long serialVersionUID = 1L;
@@ -203,5 +204,9 @@ public class ChineseCheckersBoard implements Board, Serializable {
     
     public ArrayList<ArrayList<Field>> getActiveFields() {
         return activeFields;
+    }
+
+    public ArrayList<Player> getListOfPlayers() {
+        return new ArrayList<>();  // TODO(eliza): get list of players from the board
     }
 }
