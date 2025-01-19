@@ -5,24 +5,23 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import com.example.trylma.board.ChineseCheckersBoard;
 import com.example.trylma.board.Move;
 import com.example.trylma.board.Pawn;
 import com.example.trylma.factories.BoardFactory;
-import com.example.trylma.interfaces.Board;
 import com.example.trylma.interfaces.Field;
 import com.example.trylma.interfaces.GameManager;
 import com.example.trylma.interfaces.Player;
 
 public class StandardGameManager implements GameManager {
-    private final Board board;
+    private final ChineseCheckersBoard board;
 
     public StandardGameManager(String gameType, int numberOfPlayers) {
         this.board = BoardFactory.createBoard(gameType, numberOfPlayers);
-
     }
 
     @Override
-    public Board getBoard() {
+    public ChineseCheckersBoard getBoard() {
         return board;
     }
 
@@ -71,7 +70,7 @@ public class StandardGameManager implements GameManager {
     }
 
     @Override
-    public boolean isWinningMove(Move move, Player player) {
+    public boolean isWinningMove(Player player) {
         boolean allPawnsOnTarget = true;
 
         for (Pawn pawn : player.getPawns()) {
