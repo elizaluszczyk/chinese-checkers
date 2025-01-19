@@ -5,11 +5,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import com.example.trylma.board.ChineseCheckersBoard;
 import com.example.trylma.board.Move;
 import com.example.trylma.game.GamePlayer;
 import com.example.trylma.game.GameType;
 import com.example.trylma.game.StandardGameManager;
-import com.example.trylma.interfaces.Board;
 import com.example.trylma.interfaces.GameManager;
 import com.example.trylma.interfaces.Player;
 import com.example.trylma.packets.BoardUpdatePacket;
@@ -20,6 +20,7 @@ import com.example.trylma.packets.MovePacket;
 import com.example.trylma.packets.RequestGameSettingsPacket;
 import com.example.trylma.packets.RequestUsernamePacket;
 import com.example.trylma.packets.TextMessagePacket;
+import com.example.trylma.packets.TurnSkipPacket;
 import com.example.trylma.packets.TurnUpdatePacket;
 import com.example.trylma.packets.UsernamePacket;
 import com.example.trylma.packets.WinPacket;
@@ -84,8 +85,9 @@ public class ClientHandler implements Runnable {
         transmitPacket(new MovePacket(move));
     }
 
-    public void transmitBoardUpdate(Board board) {
-        transmitPacket(new BoardUpdatePacket(board));
+    public void transmitBoardUpdate(ChineseCheckersBoard board) {
+
+        transmitPacket(new BoardUpdatePacket(board.getBoard()));
     }
 
     public void transmitInvalidMove(Move invalidMove) {
@@ -131,9 +133,15 @@ public class ClientHandler implements Runnable {
             handleUsername(usernamePacket);
         } else if (packet instanceof GameSettingsPacket gameSettingsPacket) {
             handleGameSettings(gameSettingsPacket);
+        } else if (packet instanceof TurnSkipPacket) {
+            handleTurnSkipPacket();
         } else {
             System.err.println("Unknown packet type received: " + packet.getClass().getName());
         }
+    }
+
+    private void handleTurnSkipPacket() {
+        GameServer.moveToNextTurn();
     }
 
     private void handleTextMessage(TextMessagePacket packet) {
@@ -149,20 +157,24 @@ public class ClientHandler implements Runnable {
         gameManager = GameManagerSingleton.getInstance();
 
         if (!isPlayerTurn()) {
-            transmitMessage("It's not your turn!");
+            transmitInvalidMove(move);
             return;
         }
 
+        if (GameServer.getPlayersWhoWon().contains(this.getPlayer().getUsername())) {
+            return;
+        }
+        
         if (gameManager.isMoveValid(move, this.getPlayer())) {
             gameManager.applyMove(move);
 
-            Board updatedBoard = gameManager.getBoard();
+            ChineseCheckersBoard updatedBoard = gameManager.getBoard();
             GameServer.broadcastBoardUpdate(updatedBoard, this);
 
-           if (gameManager.isWinningMove(move, this.getPlayer())) {
+           if (gameManager.isWinningMove(this.getPlayer())) {
                 transmitWin("You win! End of the game");
                 GameServer.broadcastMessage("Player " + this.getPlayer().getUsername() + " won! End of the game", this);
-                // TODO
+                GameServer.addWinner(this.getPlayer().getUsername());
             }
 
             GameServer.moveToNextTurn();
