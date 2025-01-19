@@ -1,30 +1,32 @@
 package com.example.trylma.game;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import com.example.trylma.board.ChineseCheckersBoard;
 import com.example.trylma.board.Move;
+import com.example.trylma.board.Pawn;
 import com.example.trylma.factories.BoardFactory;
-import com.example.trylma.interfaces.Board;
 import com.example.trylma.interfaces.Field;
 import com.example.trylma.interfaces.GameManager;
+import com.example.trylma.interfaces.Player;
 
 public class StandardGameManager implements GameManager {
-    private final Board board;
+    private final ChineseCheckersBoard board;
 
     public StandardGameManager(String gameType, int numberOfPlayers) {
         this.board = BoardFactory.createBoard(gameType, numberOfPlayers);
-
     }
 
     @Override
-    public Board getBoard() {
+    public ChineseCheckersBoard getBoard() {
         return board;
     }
 
     @Override
-    public boolean isMoveValid(Move move) {
+    public boolean isMoveValid(Move move, Player player) {
         Field startField = board.getField(move.getStartX(), move.getStartY());
         Field endField = board.getField(move.getEndX(), move.getEndY());
 
@@ -40,11 +42,15 @@ public class StandardGameManager implements GameManager {
             return false;
         }
 
+        if (!player.getPawns().contains(startField.getPawn())) {
+            return false;
+        }
+
         int dx = Math.abs(move.getEndX() - move.getStartX());
         int dy = Math.abs(move.getEndY() - move.getStartY());
 
         // move to the neighboring field
-        if ((dx == 2 && dy == 0) || (dx == 1 && dy == 1)) {
+        if ((dx == 0 && dy == 2) || (dx == 1 && dy == 1)) {
             return true;
         }
 
@@ -63,6 +69,32 @@ public class StandardGameManager implements GameManager {
         startField.setPawn(null);
     }
 
+    @Override
+    public boolean isWinningMove(Player player) {
+        boolean allPawnsOnTarget = true;
+
+        for (Pawn pawn : player.getPawns()) {
+            Field pawnField = pawn.getCurrentField();
+
+            ArrayList<Field> targetPositions = player.getTargetPositions();
+
+            boolean isOnTarget = false;
+            for (Field targetField : targetPositions) {
+                if (pawnField.equals(targetField)) {
+                    isOnTarget = true;
+                    break;
+                }
+            }
+
+            if (!isOnTarget) {
+                allPawnsOnTarget = false;
+                break; 
+            }
+        }
+        
+        return allPawnsOnTarget;
+    }
+
     private boolean isValidJump(int startX, int endX, int startY, int endY) {
         Queue<int[]> queue = new LinkedList<>();
         HashSet<String> visited = new HashSet<>();
@@ -71,7 +103,7 @@ public class StandardGameManager implements GameManager {
         visited.add(startX + "," + startY);
 
         int[][] directions = {
-            {4, 0}, {-4, 0}, {2, 2}, {-2, -2}, {2, -2}, {-2, 2}
+            {0, 4}, {0, -4}, {2, 2}, {-2, -2}, {2, -2}, {-2, 2}
         };
 
         while(!queue.isEmpty()) {

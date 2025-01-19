@@ -13,9 +13,9 @@ import java.util.Queue;
 
 import com.example.trylma.board.Move;
 import com.example.trylma.exceptions.InvalidMoveException;
-import com.example.trylma.interfaces.Board;
 import com.example.trylma.interfaces.ClientObserver;
 import com.example.trylma.packets.BoardUpdatePacket;
+import com.example.trylma.packets.FieldData;
 import com.example.trylma.packets.GameSettingsPacket;
 import com.example.trylma.packets.InvalidGameSettingsPacket;
 import com.example.trylma.packets.InvalidMovePacket;
@@ -23,8 +23,10 @@ import com.example.trylma.packets.MovePacket;
 import com.example.trylma.packets.RequestGameSettingsPacket;
 import com.example.trylma.packets.RequestUsernamePacket;
 import com.example.trylma.packets.TextMessagePacket;
+import com.example.trylma.packets.TurnSkipPacket;
 import com.example.trylma.packets.TurnUpdatePacket;
 import com.example.trylma.packets.UsernamePacket;
+import com.example.trylma.packets.WinPacket;
 import com.example.trylma.parsers.StandardMoveParser;
 import com.example.trylma.server.ServerPacket;
 
@@ -53,6 +55,10 @@ public class GameClient {
         this.clientObservers.remove(observer);
     }
 
+    public void emitTurnSkipPacket() {
+        sendPacketToServer(new TurnSkipPacket(), objectOutputStream);
+    }
+
     public void start(boolean takeUserInput) {
         try (Socket socket = new Socket(serverAddress, port);) {
 
@@ -66,6 +72,7 @@ public class GameClient {
                 try {
                     while (true) { 
                         ServerPacket serverPacket = (ServerPacket) objectInputStream.readObject(); 
+                        System.out.println(serverPacket.toString());
                         handlePacket(serverPacket);
                     }
                 } catch (IOException | ClassNotFoundException e) {
@@ -198,6 +205,8 @@ public class GameClient {
             handleRequestGameSettings(requestGameSettingsPacket);
         } else if (packet instanceof TurnUpdatePacket turnUpdatePacket) {
             handleTurnUpdate(turnUpdatePacket);
+        } else if (packet instanceof WinPacket) {
+            handleWinPacket();
         } else if (packet instanceof InvalidMovePacket invalidMovePacket) {
             handleInvalidMove(invalidMovePacket);
         } else if (packet instanceof InvalidGameSettingsPacket invalidGameSettingsPacket) {
@@ -209,15 +218,31 @@ public class GameClient {
         this.notifyAllOnPacket(packet);
     }
 
+    private void handleWinPacket() {
+        System.out.println("You won");
+    }
+
     private void handleTextMessage(TextMessagePacket packet) {
         String message = packet.getMessageString();
         System.out.println("Received text message: " + message);
     }
 
     private void handleBoardUpdate(BoardUpdatePacket packet) {
-        Board board = packet.getBoard();
-        board.printBoard();
-        System.out.println("Received board update: " + board);
+        // ChineseCheckersBoard board = packet.getBoard();
+        // board.printBoard();
+        for (ArrayList<FieldData> row : packet.getBoard()) {
+            for (FieldData field : row) {
+                if (field.isActive()) {
+                    System.out.print(field.toString());
+                } else {
+                    System.out.print(" ");
+                }
+            }
+            System.out.println();
+
+        }
+        System.out.println();
+        System.out.println("Received board update: ");
     }
 
     private void handleRequestUsername(RequestUsernamePacket packet) throws IOException {

@@ -6,7 +6,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Random;
 
-import com.example.trylma.interfaces.Board;
+import com.example.trylma.board.ChineseCheckersBoard;
 import com.example.trylma.interfaces.GameManager;
 import com.example.trylma.interfaces.Player;
 
@@ -16,11 +16,24 @@ public class GameServer {
     private static String gameType = null;
     protected static final ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
     protected static final ArrayList<Player> players = new ArrayList<>();
+    protected static final ArrayList<String> playersWhoWon = new ArrayList<>();
     protected static GameManager gameManager;
     protected static Integer currentPlayerIndex = null;
 
     public GameServer(int port) {
         this.port = port;
+    }
+
+    public static void addPlayer(Player player) {
+        players.add(player);
+    }
+
+    public static ArrayList<String> getPlayersWhoWon() {
+        return playersWhoWon;
+    }
+
+    public static void addWinner(String winner) {
+        playersWhoWon.add(winner);
     }
 
     public void start() {
@@ -100,7 +113,7 @@ public class GameServer {
         }
     }
 
-    public static synchronized void broadcastBoardUpdate(Board board, ClientHandler sender) {
+    public static synchronized void broadcastBoardUpdate(ChineseCheckersBoard board, ClientHandler sender) {
         for (ClientHandler client : clientHandlers) {
             client.transmitBoardUpdate(board);
         }

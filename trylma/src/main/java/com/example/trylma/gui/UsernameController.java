@@ -21,7 +21,7 @@ public class UsernameController {
 
         if (!username.isEmpty()) {
             MainApp.setUsername(username);
-            MainApp.setRoot("/blank.fxml");
+            MainApp.setRoot("/board-view.fxml");
         }
         else {
             enterUsernameLabel.setText("Username can't be empty!");

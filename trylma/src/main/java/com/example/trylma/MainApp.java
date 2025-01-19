@@ -3,12 +3,15 @@ package com.example.trylma;
 import java.io.IOException;
 
 import com.example.trylma.client.GameClient;
+import com.example.trylma.gui.BoardController;
 import com.example.trylma.server.GameServer;
 
+import atlantafx.base.theme.PrimerDark;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 public class MainApp extends Application {
@@ -51,10 +54,11 @@ public class MainApp extends Application {
         }
     
         String fxmlFilename = "/usernameClient.fxml";
-        scene = new Scene(loadFXML(fxmlFilename), 640, 480);
+        scene = new Scene(loadFXML(fxmlFilename), 910, 1015);
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Chinese Checkers");
         primaryStage.show();
+
+        Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
     }
 
     private static Parent loadFXML(String fxml) throws IOException {
