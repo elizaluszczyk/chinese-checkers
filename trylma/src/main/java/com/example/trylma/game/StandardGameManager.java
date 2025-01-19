@@ -50,7 +50,7 @@ public class StandardGameManager implements GameManager {
         int dy = Math.abs(move.getEndY() - move.getStartY());
 
         // move to the neighboring field
-        if ((dx == 2 && dy == 0) || (dx == 1 && dy == 1)) {
+        if ((dx == 0 && dy == 2) || (dx == 1 && dy == 1)) {
             return true;
         }
 
@@ -103,7 +103,7 @@ public class StandardGameManager implements GameManager {
         visited.add(startX + "," + startY);
 
         int[][] directions = {
-            {4, 0}, {-4, 0}, {2, 2}, {-2, -2}, {2, -2}, {-2, 2}
+            {0, 4}, {0, -4}, {2, 2}, {-2, -2}, {2, -2}, {-2, 2}
         };
 
         while(!queue.isEmpty()) {
