@@ -2,6 +2,7 @@ package com.example.trylma.factories;
 
 import com.example.trylma.board.ChineseCheckersBoard;
 import com.example.trylma.board.DefaultBoardWithPlacedPawns;
+import com.example.trylma.board.YinAndYangBoard;
 import com.example.trylma.game.GameType;
 
 public class BoardFactory {
@@ -9,6 +10,13 @@ public class BoardFactory {
         GameType gameType = GameType.fromString(gameTypeString);
         
         switch (gameType) {
+            case YINANDYANG -> {
+                YinAndYangBoard board = new YinAndYangBoard(numberOfPlayers);
+                board.setStartingAndTargetPositions(numberOfPlayers);
+                board.placePawns();
+
+                return board;
+            }
             case DEFAULT -> {
                 DefaultBoardWithPlacedPawns board = new DefaultBoardWithPlacedPawns(numberOfPlayers);
                 board.setStartingAndTargetPositions(numberOfPlayers);
