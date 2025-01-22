@@ -3,6 +3,10 @@ package com.example.trylma.gui;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Objects;
+import java.util.Queue;
 
 import com.example.trylma.MainApp;
 import com.example.trylma.board.Move;
@@ -40,6 +44,8 @@ public class BoardController implements ClientObserver {
     private ArrayList<ArrayList<FieldData>> board = new ArrayList<>();
     private final GameClient gameClient = new GameClient("localhost", 58901);
     private ClickedField clickedField = null;
+    private Queue<Color> colorQueue = new LinkedList<>();
+    private HashMap<String, Color> playerIdToColor = new HashMap<>();
 
     @FXML
     private Button skipButton;
@@ -67,6 +73,13 @@ public class BoardController implements ClientObserver {
             gameClient.start(false);
         });
         receiveThread.start();
+
+        colorQueue.add(Color.LIGHTBLUE);
+        colorQueue.add(Color.LIGHTGREEN);
+        colorQueue.add(Color.CORAL);
+        colorQueue.add(Color.CYAN);
+        colorQueue.add(Color.LIGHTSALMON);
+        colorQueue.add(Color.MEDIUMPURPLE);
     }
 
     @Override
@@ -249,11 +262,8 @@ public class BoardController implements ClientObserver {
                 circle.setFill(Color.rgb(98, 98, 98));
 
                 if (field.isOccupied()) {
-                    circle.setFill(Color.RED);
-                    if (MainApp.getUsername().equals(field.getOwnerId())) {
-                        circle.setStroke(Color.GOLD);
-                        circle.setStrokeWidth(offset / 2);
-                    }
+                    stylePawn(field, circle, offset);
+                    
                 }
 
                 circle.setOnMouseClicked(event -> {
@@ -264,6 +274,23 @@ public class BoardController implements ClientObserver {
                 xCoordinate += radius + offset;
             }
             yCoordinate += radius * Math.sqrt(3) + offset;
+        }
+    }
+
+    public void stylePawn(FieldData field, Circle circle, int offset) {
+        if (!playerIdToColor.containsKey(field.getOwnerId())) {
+            Color color = colorQueue.poll();
+
+            if (Objects.isNull(color)) color = Color.RED;
+
+            playerIdToColor.put(field.getOwnerId(), color);
+        }
+
+        circle.setFill(playerIdToColor.get(field.getOwnerId()));
+
+        if (MainApp.getUsername().equals(field.getOwnerId())) {
+            circle.setStroke(Color.GOLD);
+            circle.setStrokeWidth(offset / 2);
         }
     }
 
