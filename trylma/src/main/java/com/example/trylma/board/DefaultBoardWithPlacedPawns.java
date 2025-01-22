@@ -7,7 +7,7 @@ import com.example.trylma.interfaces.Player;
 import com.example.trylma.server.GameServer;
 
 public class DefaultBoardWithPlacedPawns extends ChineseCheckersBoard {
-    private final ArrayList<Player> listOfPlayers;
+    protected final ArrayList<Player> listOfPlayers;
 
     public DefaultBoardWithPlacedPawns(int numberOfPlayers) {
         super(5);
