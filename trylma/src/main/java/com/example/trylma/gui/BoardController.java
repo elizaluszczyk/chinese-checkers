@@ -192,8 +192,18 @@ public class BoardController implements ClientObserver {
     
         ChoiceBox<String> gameTypeDropdownField = new ChoiceBox<>();
         gameTypeDropdownField.getItems().add("default");
+        gameTypeDropdownField.getItems().add("YinAndYang");
         gameTypeDropdownField.setValue("default");
     
+        gameTypeDropdownField.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if ("YinAndYang".equals(newValue)) {
+                playerCountDropdown.setValue(2);
+                playerCountDropdown.setDisable(true);
+            } else {
+                playerCountDropdown.setDisable(false);
+            }
+        });
+
         grid.add(new Label("Player Count:"), 0, 2);
         grid.add(playerCountDropdown, 1, 2);
         grid.add(new Label("Game type:"), 0, 3);
