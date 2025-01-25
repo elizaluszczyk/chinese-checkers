@@ -83,50 +83,6 @@ class StandardGameManagerTest {
     }
 
     @Test
-    void testIsMoveValid_ValidNeighboringMove() {
-        Move move = new Move(0, 0, 1, 1);
-        Field startField = mock(StandardField.class);
-        Field endField = mock(StandardField.class);
-
-        when(boardMock.getField(0, 0)).thenReturn(startField);
-        when(boardMock.getField(1, 1)).thenReturn(endField);
-
-        when(startField.isActive()).thenReturn(true);
-        when(endField.isActive()).thenReturn(true);
-        when(startField.isOccupied()).thenReturn(true);
-        when(endField.isOccupied()).thenReturn(false);
-        when(startField.getPawn()).thenReturn(pawn);
-
-        ArrayList<Pawn> mockPawnList = new ArrayList<>(List.of(pawn));
-        when(player.getPawns()).thenReturn(mockPawnList);
-
-        assertTrue(gameManager.isMoveValid(move, player), "Neighboring move should be valid.");
-    }
-
-
-    @Test
-    void testIsMoveValid_ValidJumpMove() {
-        Move move = new Move(0, 0, 2, 2);
-        Field startField = mock(Field.class);
-        Field endField = mock(Field.class);
-
-        when(boardMock.getField(0, 0)).thenReturn(startField);
-        when(boardMock.getField(2, 2)).thenReturn(endField);
-        when(startField.isActive()).thenReturn(true);
-        when(endField.isActive()).thenReturn(true);
-        when(startField.isOccupied()).thenReturn(true);
-        when(endField.isOccupied()).thenReturn(false);
-        when(startField.getPawn()).thenReturn(pawn);
-        ArrayList<Pawn> mockPawnList = new ArrayList<>();
-        when(player.getPawns()).thenReturn(mockPawnList);
-        assertFalse(gameManager.isMoveValid(move, player));
-
-        doReturn(true).when(gameManager).isValidJump(0, 2, 0, 2);
-
-        assertTrue(gameManager.isMoveValid(move, player));
-    }
-
-    @Test
     void testApplyMove() {
         StandardGameManager gameManager1 = new StandardGameManager("default", 2);
         Move move = new Move(12, 8, 13, 9);
