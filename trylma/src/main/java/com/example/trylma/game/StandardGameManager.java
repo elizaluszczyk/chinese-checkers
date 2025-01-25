@@ -95,7 +95,7 @@ public class StandardGameManager implements GameManager {
         return allPawnsOnTarget;
     }
 
-    private boolean isValidJump(int startX, int endX, int startY, int endY) {
+    public boolean isValidJump(int startX, int endX, int startY, int endY) {
         Queue<int[]> queue = new LinkedList<>();
         HashSet<String> visited = new HashSet<>();
 

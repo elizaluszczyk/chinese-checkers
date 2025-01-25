@@ -61,6 +61,20 @@
         <artifactId>atlantafx-base</artifactId>
         <version>2.0.1</version>
     </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>5.5.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Mockito JUnit 5 Integration -->
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <version>5.5.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -135,7 +149,8 @@
             <mainClass>com.example.trylma.MainApp</mainClass>
              <arguments>
                     <argument>--module-path</argument>
-                    <argument>${javafx.sdk.lib}</argument>
+                    <!--suppress UnresolvedMavenProperty -->
+               <argument>${javafx.sdk.lib}</argument>
                     <argument>--add-modules</argument>
                     <argument>javafx.controls,javafx.fxml</argument>
                 </arguments>
