@@ -7,6 +7,7 @@ import java.net.Socket;
 
 import com.example.trylma.board.ChineseCheckersBoard;
 import com.example.trylma.board.Move;
+import com.example.trylma.game.BotPlayer;
 import com.example.trylma.game.GamePlayer;
 import com.example.trylma.game.GameType;
 import com.example.trylma.game.StandardGameManager;
@@ -26,7 +27,6 @@ import com.example.trylma.packets.UsernamePacket;
 import com.example.trylma.packets.WinPacket;
 
 public class ClientHandler implements Runnable {
-
     private final Socket clientSocket;
     private final ObjectOutputStream objectOutputStream;
     private final ObjectInputStream objectInputStream;
@@ -60,12 +60,19 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private boolean validateNumberOfPlayers(int numberOfPlayers) {
-        if (numberOfPlayers < 2 || numberOfPlayers == 5 || numberOfPlayers > 6) {
+    private boolean validateNumberOfPlayers(String gameType, int numberOfPlayers) {
+        boolean isValid = switch (gameType) {
+            case "default" -> numberOfPlayers >= 2 && numberOfPlayers != 5 && numberOfPlayers <= 6;
+            case "defaultWithBot" -> numberOfPlayers >= 1 && numberOfPlayers != 4 && numberOfPlayers <= 5;
+            case "YinAndYang" -> numberOfPlayers == 2;
+            default -> false; 
+        };
+    
+        if (!isValid) {
             transmitInvalidGameSettings("Invalid number of players, enter settings again");
-            return false;
         }
-        return true;
+    
+        return isValid;
     }
 
     private boolean validateGameType(String gameType) {
@@ -198,14 +205,15 @@ public class ClientHandler implements Runnable {
         String gameType = packet.getGameType();
         System.out.println("Received game type: " + gameType);
 
-        if (validateNumberOfPlayers(numberOfPlayers) && validateGameType(gameType)) {
-            GameServer.setNumberOfPlayers(numberOfPlayers);
-            GameServer.setGameType(gameType);
-            transmitMessage("Game settings applied: " + numberOfPlayers + " players, variant: " + gameType);
-        }       
+        validateGameType(gameType);
+        GameServer.setGameType(gameType);
+
+        validateNumberOfPlayers(gameType, numberOfPlayers);
+        GameServer.setNumberOfPlayers(numberOfPlayers);
+        transmitMessage("Game settings applied: " + numberOfPlayers + " players, variant: " + gameType);
     }
 
-    private boolean isPlayerTurn() {
+    public boolean isPlayerTurn() {
         return playerTurn;
     }
 
