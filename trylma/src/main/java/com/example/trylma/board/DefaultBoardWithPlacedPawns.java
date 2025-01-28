@@ -12,12 +12,14 @@ public class DefaultBoardWithPlacedPawns extends ChineseCheckersBoard {
     public DefaultBoardWithPlacedPawns(int numberOfPlayers) {
         super(5);
         this.listOfPlayers = new ArrayList<>(GameServer.getAllPlayers());
-        // setStartingAndTargetPositions(numberOfPlayers);
-        // placePawns();
     }
     
     public void placePawns() {
         for (Player player : listOfPlayers) {
+            if (!player.getPawns().isEmpty()) {
+                continue; 
+            }
+            
             for (int i = 0; i < player.getStartingPositions().size(); i++) {
                 Pawn pawn = new Pawn(player.getUsername(), (Field) player.getStartingPositions().get(i), i);
                 player.getPawns().add(pawn);
@@ -73,6 +75,7 @@ public class DefaultBoardWithPlacedPawns extends ChineseCheckersBoard {
             }
         }
     
+    @Override
     public ArrayList<Player> getListOfPlayers() {
         return listOfPlayers;
     }
