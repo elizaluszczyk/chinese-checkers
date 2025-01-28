@@ -231,14 +231,32 @@ public class ClientHandler implements Runnable {
                 GameServer.players.add(this.getPlayer());
                 setupGameSettings(GameServer.clientHandlers.size());
 
-                if (GameServer.clientHandlers.size() == GameServer.getNumberOfPlayers()) {
-                    GameManagerSingleton.setInstance(new StandardGameManager(GameServer.getGameType(), GameServer.getNumberOfPlayers()));
-                    GameServer.broadcastMessage("The game is starting!", null);
-                  
-                    GameServer.moveToNextTurn();
+                if (GameServer.getGameType().equals("defaultWithBot")) {
+                    BotPlayer botPlayer = new BotPlayer("botPlayer");
+                    GameServer.setBotPlayer(botPlayer);
+                    GameServer.players.add(botPlayer);
+                    System.out.println("Bot player added to the game");
 
-                    gameManager = GameManagerSingleton.getInstance();
-                    GameServer.broadcastBoardUpdate(gameManager.getBoard(), this);
+                    if (GameServer.players.size() == GameServer.getNumberOfPlayers() + 1) {
+                        GameManagerSingleton.setInstance(new StandardGameManager(GameServer.getGameType(), GameServer.getNumberOfPlayers()));
+                        GameServer.broadcastMessage("The game is starting!", null);
+                        System.out.println("Players: " + GameServer.players);
+
+                        GameServer.moveToNextTurn();
+
+                        gameManager = GameManagerSingleton.getInstance();
+                        GameServer.broadcastBoardUpdate(gameManager.getBoard(), this);
+                    }
+                } else {
+                    if (GameServer.players.size() == GameServer.getNumberOfPlayers()) {
+                        GameManagerSingleton.setInstance(new StandardGameManager(GameServer.getGameType(), GameServer.getNumberOfPlayers()));
+                        GameServer.broadcastMessage("The game is starting!", null);
+
+                        GameServer.moveToNextTurn();
+
+                        gameManager = GameManagerSingleton.getInstance();
+                        GameServer.broadcastBoardUpdate(gameManager.getBoard(), this);
+                    }
                 }
             }
 
