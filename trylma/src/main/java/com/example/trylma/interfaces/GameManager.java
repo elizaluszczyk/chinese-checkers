@@ -8,4 +8,5 @@ public interface GameManager {
     boolean isMoveValid(Move move, Player player);
     void applyMove(Move move);
     boolean isWinningMove(Player player);
+    void applyMoveForBot(Move move);
 }

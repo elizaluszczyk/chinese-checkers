@@ -12,4 +12,6 @@ public interface Player {
     void setTargetPositions(ArrayList<Field> targetPositions);
     ArrayList<Field> getStartingPositions();
     ArrayList<Field> getTargetPositions();
+    boolean isPlayerTurn();
+    void setPlayerTurn(boolean playerTurn);
 }
