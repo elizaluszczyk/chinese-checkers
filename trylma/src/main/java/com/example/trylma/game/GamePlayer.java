@@ -10,6 +10,7 @@ import com.example.trylma.interfaces.Player;
 public class GamePlayer implements Player, Serializable {
     private static final long serialVersionUID = 1L;
     private final String username;
+    private boolean playerTurn = true;
     private ArrayList<Field> startingPositions = new ArrayList<>();
     private ArrayList<Field> targetPositions = new ArrayList<>();
     private ArrayList<Pawn> pawns = new ArrayList<>();
@@ -51,5 +52,15 @@ public class GamePlayer implements Player, Serializable {
     @Override
     public ArrayList<Field> getTargetPositions() {
         return targetPositions;
+    }
+
+    @Override
+    public boolean isPlayerTurn() {
+        return playerTurn;
+    }
+
+    @Override
+    public void setPlayerTurn(boolean playerTurn) {
+        this.playerTurn = playerTurn;
     }
 }
