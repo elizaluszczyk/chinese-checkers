@@ -197,22 +197,28 @@ public class BoardController implements ClientObserver {
         grid.setVgap(10);
     
         ChoiceBox<Integer> playerCountDropdown = new ChoiceBox<>();
-        playerCountDropdown.getItems().add(2);
-        playerCountDropdown.getItems().add(3);
-        playerCountDropdown.getItems().add(4);
-        playerCountDropdown.getItems().add(6);
+        playerCountDropdown.getItems().addAll(2, 3, 4, 6);
         playerCountDropdown.setValue(2);
+
+        playerCountDropdown.setMinWidth(100); 
+        playerCountDropdown.setPrefWidth(100);
     
         ChoiceBox<String> gameTypeDropdownField = new ChoiceBox<>();
-        gameTypeDropdownField.getItems().add("default");
-        gameTypeDropdownField.getItems().add("YinAndYang");
+        gameTypeDropdownField.getItems().addAll("default", "defaultWithBot", "YinAndYang");
         gameTypeDropdownField.setValue("default");
     
         gameTypeDropdownField.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if ("YinAndYang".equals(newValue)) {
+                playerCountDropdown.getItems().setAll(2);
                 playerCountDropdown.setValue(2);
                 playerCountDropdown.setDisable(true);
+            } else if ("defaultWithBot".equals(newValue)) {
+                playerCountDropdown.getItems().setAll(1, 2, 3, 5);
+                playerCountDropdown.setValue(1);
+                playerCountDropdown.setDisable(false);
             } else {
+                playerCountDropdown.getItems().setAll(2, 3, 4, 6);
+                playerCountDropdown.setValue(2);
                 playerCountDropdown.setDisable(false);
             }
         });
