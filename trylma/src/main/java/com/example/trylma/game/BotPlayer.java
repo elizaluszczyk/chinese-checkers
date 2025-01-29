@@ -8,53 +8,92 @@ import com.example.trylma.board.Pawn;
 import com.example.trylma.interfaces.Field;
 
 public class BotPlayer extends GamePlayer {
-    private final Random random = new Random();
 
     public BotPlayer(String username) {
         super(username);
     }
 
     public Move generateMove(ChineseCheckersBoard board) {
-        ArrayList<Move> possibleMoves = getPossibleNeighbourFieldsMove(board);
-        System.out.println("Possible moves: " + possibleMoves);
-
-        if (possibleMoves.isEmpty()) {
-            return null; 
-        }
-
-        int index = random.nextInt(possibleMoves.size());
-        return possibleMoves.get(index);
-    }
-
-    private ArrayList<Move> getPossibleNeighbourFieldsMove(ChineseCheckersBoard board) {
-        ArrayList<Move> possibleMoves = new ArrayList<>();
+        ArrayList<Move> candidateMoves = new ArrayList<>();
 
         for (Pawn pawn : this.getPawns()) {
             Field currentField = pawn.getCurrentField();
+            ArrayList<Move> regularMoves = generateMovesForField(board, currentField);
+            ArrayList<Move> jumpMoves = generateJumpMovesForField(board, currentField);
+            ArrayList<Move> pawnMoves = new ArrayList<>();
+            pawnMoves.addAll(regularMoves);
+            pawnMoves.addAll(jumpMoves);
 
-            ArrayList<Move> movesForCurrentField = generateMovesForField(board, currentField);
-            System.out.println(("For field " + currentField.getX() + ", " + currentField.getY() + " are possible moves: " + movesForCurrentField));
-
-            
-            for (Move move : movesForCurrentField) {
-                    possibleMoves.add(move);
+            if (pawnMoves.isEmpty()) {
+                continue;
             }
+
+            double minDistance = Double.MAX_VALUE;
+            ArrayList<Move> bestPawnMoves = new ArrayList<>();
+
+            for (Move move : pawnMoves) {
+                Field targetField = board.getField(move.getEndY(), move.getEndX());
+                if (targetField == null) continue;
+
+                double currentMinDistance = this.getTargetPositions().stream()
+                        .mapToDouble(t -> calculateDistance(targetField, t))
+                        .min()
+                        .orElse(Double.MAX_VALUE);
+
+                if (currentMinDistance < minDistance) {
+                    minDistance = currentMinDistance;
+                    bestPawnMoves.clear();
+                    bestPawnMoves.add(move);
+                } else if (currentMinDistance == minDistance) {
+                    bestPawnMoves.add(move);
+                }
+            }
+
+            if (!bestPawnMoves.isEmpty()) {
+                bestPawnMoves.sort((m1, m2) -> {
+                    double d1 = calculateDistance(
+                        board.getField(m1.getStartY(), m1.getStartX()),
+                        board.getField(m1.getEndY(), m1.getEndX())
+                    );
+                    double d2 = calculateDistance(
+                        board.getField(m2.getStartY(), m2.getStartX()),
+                        board.getField(m2.getEndY(), m2.getEndX())
+                    );
+                    return Double.compare(d2, d1);
+                });
             
+                candidateMoves.add(bestPawnMoves.get(0));
+            }
         }
 
-        return possibleMoves;
+        if (candidateMoves.isEmpty()) {
+            return null; 
+        }
+
+        candidateMoves.sort((m1, m2) -> {
+            double d1 = calculateDistance(
+                board.getField(m1.getStartY(), m1.getStartX()),
+                board.getField(m1.getEndY(), m1.getEndX())
+            );
+            double d2 = calculateDistance(
+                board.getField(m2.getStartY(), m2.getStartX()),
+                board.getField(m2.getEndY(), m2.getEndX())
+            );
+            return Double.compare(d2, d1); 
+        });
+
+        return candidateMoves.get(0);
+    }
+
+    private double calculateDistance(Field a, Field b) {
+        return Math.sqrt(Math.pow(a.getX() - b.getX(), 2) + Math.pow(a.getY() - b.getY(), 2));
     }
 
     private ArrayList<Move> generateMovesForField(ChineseCheckersBoard board, Field field) {
         ArrayList<Move> moves = new ArrayList<>();
-
         int[][] directions = {
-            {1, -1}, 
-            {-1, -1}, 
-            {2, 0},
-            {-1, 1}, 
-            {1, 1},
-            {-2, 0}  
+            {1, -1}, {-1, -1}, {2, 0},
+            {-1, 1}, {1, 1}, {-2, 0}
         };
 
         for (int[] direction : directions) {
