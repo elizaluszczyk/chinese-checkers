@@ -1,7 +1,6 @@
 package com.example.trylma.game;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 import com.example.trylma.board.ChineseCheckersBoard;
 import com.example.trylma.board.Move;
@@ -63,12 +62,35 @@ public class BotPlayer extends GamePlayer {
             int targetY = field.getY() + direction[1];
 
             Field targetField = board.getField(targetY, targetX);
-            if (targetField != null && !targetField.isOccupied() && targetField.isActive()) {
-                Move possibleMove = new Move(field.getX(), field.getY(), targetX, targetY);
-                moves.add(possibleMove);
+            if (targetField != null && targetField.isActive() && !targetField.isOccupied()) {
+                moves.add(new Move(field.getX(), field.getY(), targetX, targetY));
             }
         }
-
         return moves;
+    }
+
+    private ArrayList<Move> generateJumpMovesForField(ChineseCheckersBoard board, Field field) {
+        ArrayList<Move> jumpMoves = new ArrayList<>();
+        int[][] directions = {
+            {4, 0}, {-4, 0}, {2, 2},
+            {-2, -2}, {2, -2}, {-2, 2}
+        };
+
+        for (int[] direction : directions) {
+            int targetX = field.getX() + direction[0];
+            int targetY = field.getY() + direction[1];
+
+            Field targetField = board.getField(targetY, targetX);
+            if (targetField != null && targetField.isActive() && !targetField.isOccupied()) {
+                int midX = (field.getX() + targetX) / 2;
+                int midY = (field.getY() + targetY) / 2;
+
+                Field middleField = board.getField(midY, midX);
+                if (middleField != null && middleField.isOccupied() && middleField.isActive()) {
+                    jumpMoves.add(new Move(field.getX(), field.getY(), targetX, targetY));
+                }
+            }
+        }
+        return jumpMoves;
     }
 }
