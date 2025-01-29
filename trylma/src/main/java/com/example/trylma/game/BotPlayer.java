@@ -82,25 +82,38 @@ public class BotPlayer extends GamePlayer {
             );
             return Double.compare(d2, d1); 
         });
-
-        return selectWeightedRandomMove(candidateMoves);
+            
+        return selectWeightedRandomMove(candidateMoves, board);
     }
 
-    private Move selectWeightedRandomMove(ArrayList<Move> moves) {
-        int totalWeight = moves.size() * (moves.size() + 1) / 2; // sum of an arithmetic sequence
-        int randomNumber = new Random().nextInt(totalWeight);
-
-        int currentSum = 0;
+    private Move selectWeightedRandomMove(ArrayList<Move> moves, ChineseCheckersBoard board) {
+        ArrayList<Double> weights = new ArrayList<>();
+        double totalWeight = 0;
+    
         for (int i = 0; i < moves.size(); i++) {
-            int weight = moves.size() - i;
-            currentSum += weight;
-
-            if (randomNumber < currentSum) {
+            Move move = moves.get(i);
+            double baseWeight = moves.size() - i; 
+            
+            Field startField = board.getField(move.getStartY(), move.getStartX());
+            boolean isInTarget = this.getTargetPositions().stream()
+                    .anyMatch(t -> t.getX() == startField.getX() && t.getY() == startField.getY());
+    
+            double finalWeight = isInTarget ? baseWeight * 0.10 : baseWeight;
+            weights.add(finalWeight);
+            totalWeight += finalWeight;
+        }
+    
+        double random = new Random().nextDouble() * totalWeight;
+        double cumulative = 0;
+    
+        for (int i = 0; i < moves.size(); i++) {
+            cumulative += weights.get(i);
+            if (random < cumulative) {
                 return moves.get(i);
             }
         }
-
-        return moves.get(0); 
+    
+        return moves.get(0);
     }
 
     private double calculateDistance(Field a, Field b) {
