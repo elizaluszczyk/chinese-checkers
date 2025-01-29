@@ -232,12 +232,12 @@ public class ClientHandler implements Runnable {
                 setupGameSettings(GameServer.clientHandlers.size());
 
                 if (GameServer.getGameType().equals("defaultWithBot")) {
-                    BotPlayer botPlayer = new BotPlayer("botPlayer");
-                    GameServer.setBotPlayer(botPlayer);
-                    GameServer.players.add(botPlayer);
-                    System.out.println("Bot player added to the game");
+                    if (GameServer.clientHandlers.size() == GameServer.getNumberOfPlayers()) {
+                        BotPlayer botPlayer = new BotPlayer("botPlayer");
+                        GameServer.setBotPlayer(botPlayer);
+                        GameServer.players.add(botPlayer);
+                        System.out.println("Bot player added to the game");
 
-                    if (GameServer.players.size() == GameServer.getNumberOfPlayers() + 1) {
                         GameManagerSingleton.setInstance(new StandardGameManager(GameServer.getGameType(), GameServer.getNumberOfPlayers()));
                         GameServer.broadcastMessage("The game is starting!", null);
                         System.out.println("Players: " + GameServer.players);
