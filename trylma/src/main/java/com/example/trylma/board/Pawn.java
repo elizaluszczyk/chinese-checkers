@@ -6,7 +6,7 @@ import com.example.trylma.interfaces.Field;
 
 public class Pawn implements Serializable {
     private static final long serialVersionUID = 1L;
-    private final Field currentField;
+    private Field currentField;
     private final String playerId;
 
     public Pawn(String playerId, Field initialField, String color, int id) {
@@ -21,6 +21,10 @@ public class Pawn implements Serializable {
 
     public Field getCurrentField() {
         return currentField;
+    }
+
+    public void setCurrentField(Field currentField) {
+        this.currentField = currentField;
     }
 
     public String getPlayerId() {

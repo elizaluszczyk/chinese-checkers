@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.example.trylma.board.ChineseCheckersBoard;
+import com.example.trylma.board.Move;
+import com.example.trylma.game.BotPlayer;
 import com.example.trylma.interfaces.GameManager;
 import com.example.trylma.interfaces.Player;
 
@@ -19,6 +21,7 @@ public class GameServer {
     protected static final ArrayList<String> playersWhoWon = new ArrayList<>();
     protected static GameManager gameManager;
     protected static Integer currentPlayerIndex = null;
+    private static BotPlayer botPlayer;
 
     public GameServer(int port) {
         this.port = port;
@@ -76,29 +79,60 @@ public class GameServer {
 
     public static void setCurrentPlayerIndex(int index) {
         currentPlayerIndex = index;
+        System.out.println("Current player index: " + currentPlayerIndex);
     }
 
     private static void incrementPlayerIndex() {
-        currentPlayerIndex = (currentPlayerIndex + 1) % clientHandlers.size();
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+        System.out.println("Next index " + currentPlayerIndex);
     }
 
     public static void moveToNextTurn() {
         Random random = new Random();
-        int randomIndex = random.nextInt(clientHandlers.size());
+        int randomIndex = random.nextInt(players.size());
 
         if (GameServer.currentPlayerIndex == null) {
             GameServer.setCurrentPlayerIndex(randomIndex);
         } 
         
-        ClientHandler currentHandler = GameServer.clientHandlers.get(GameServer.currentPlayerIndex);
-        currentHandler.setPlayerTurn(false);
+        Player currentPlayer = GameServer.players.get(GameServer.currentPlayerIndex);
+        System.out.println("Current player: " + currentPlayer.getUsername());
+        currentPlayer.setPlayerTurn(false);
 
         incrementPlayerIndex();
+
+        Player nextPlayer = GameServer.players.get(GameServer.currentPlayerIndex);
+        System.out.println("Next player: " + nextPlayer.getUsername());
+
+        if (nextPlayer instanceof BotPlayer) {
+            moveToBotTurn(botPlayer);
+        } else {
+            nextPlayer.setPlayerTurn(true);
+            notifyCurrentPlayer();
+        }
+    }
     
-        ClientHandler nextHandler = GameServer.clientHandlers.get(GameServer.currentPlayerIndex);
-        nextHandler.setPlayerTurn(true);
-    
-        notifyCurrentPlayer();
+    private static void moveToBotTurn(BotPlayer botPlayer) {
+        System.out.println("It's bot turn");
+
+        gameManager = GameManagerSingleton.getInstance();
+
+        ChineseCheckersBoard updatedBoard = gameManager.getBoard();
+        System.out.println("Updated board: " + updatedBoard);
+
+        Move botMove = botPlayer.generateMove(updatedBoard);
+        System.out.println("Bot move: " + botMove);
+        gameManager.applyMoveForBot(botMove);
+
+        broadcastBoardUpdate(updatedBoard, null);
+
+        if (gameManager.isWinningMove(botPlayer)) {
+            broadcastMessage("Bot player won!", null);
+            addWinner(botPlayer.getUsername());
+        }
+        else {
+            moveToNextTurn();
+        }
     }
 
     public static synchronized void broadcastMessage(String message, ClientHandler sender) {
@@ -121,5 +155,13 @@ public class GameServer {
 
     public static ArrayList<Player> getAllPlayers() {
         return players;
+    }
+
+    public static BotPlayer getBotPlayer() {
+        return botPlayer;
+    }
+
+    public static void setBotPlayer(BotPlayer botPlayer) {
+        GameServer.botPlayer = botPlayer;
     }
 }

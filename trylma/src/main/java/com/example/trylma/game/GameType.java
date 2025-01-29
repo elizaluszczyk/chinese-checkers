@@ -2,7 +2,8 @@ package com.example.trylma.game;
 
 public enum GameType {
     DEFAULT,
-    YINANDYANG;
+    YINANDYANG,
+    DEFAULTWITHBOT;
 
     public static GameType fromString(String input) {
         for (GameType variant : GameType.values()) {

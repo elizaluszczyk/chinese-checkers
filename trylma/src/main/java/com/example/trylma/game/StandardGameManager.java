@@ -70,6 +70,22 @@ public class StandardGameManager implements GameManager {
     }
 
     @Override
+    public void applyMoveForBot(Move move) {
+        Field startField = board.getField(move.getStartY(), move.getStartX());
+        Field endField = board.getField(move.getEndY(), move.getEndX());
+
+        Pawn movingPawn = startField.getPawn(); 
+        if (movingPawn != null) {
+            endField.setPawn(movingPawn); 
+            movingPawn.setCurrentField(endField); 
+        }
+
+        endField.setOccupied(true);
+        startField.setOccupied(false);
+        startField.setPawn(null);
+    }
+
+    @Override
     public boolean isWinningMove(Player player) {
         boolean allPawnsOnTarget = true;
 
