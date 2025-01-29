@@ -1,6 +1,7 @@
 package com.example.trylma.game;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import com.example.trylma.board.ChineseCheckersBoard;
 import com.example.trylma.board.Move;
@@ -82,7 +83,24 @@ public class BotPlayer extends GamePlayer {
             return Double.compare(d2, d1); 
         });
 
-        return candidateMoves.get(0);
+        return selectWeightedRandomMove(candidateMoves);
+    }
+
+    private Move selectWeightedRandomMove(ArrayList<Move> moves) {
+        int totalWeight = moves.size() * (moves.size() + 1) / 2; // sum of an arithmetic sequence
+        int randomNumber = new Random().nextInt(totalWeight);
+
+        int currentSum = 0;
+        for (int i = 0; i < moves.size(); i++) {
+            int weight = moves.size() - i;
+            currentSum += weight;
+
+            if (randomNumber < currentSum) {
+                return moves.get(i);
+            }
+        }
+
+        return moves.get(0); 
     }
 
     private double calculateDistance(Field a, Field b) {
