@@ -1,7 +1,7 @@
-package com.example.trylma.server;
+package com.chinesecheckers.server;
 
-import com.example.trylma.game.StandardGameManager;
-import com.example.trylma.interfaces.GameManager;
+import com.chinesecheckers.game.StandardGameManager;
+import com.chinesecheckers.interfaces.GameManager;
 
 public class GameManagerSingleton {
     private static GameManager instance;

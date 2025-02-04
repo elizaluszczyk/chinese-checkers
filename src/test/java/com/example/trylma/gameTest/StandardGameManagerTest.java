@@ -1,11 +1,11 @@
-package com.example.trylma.gameTest;
-import com.example.trylma.board.ChineseCheckersBoard;
-import com.example.trylma.board.Move;
-import com.example.trylma.board.Pawn;
-import com.example.trylma.board.StandardField;
-import com.example.trylma.game.StandardGameManager;
-import com.example.trylma.interfaces.Field;
-import com.example.trylma.interfaces.Player;
+package com.chinesecheckers.gameTest;
+import com.chinesecheckers.board.ChineseCheckersBoard;
+import com.chinesecheckers.board.Move;
+import com.chinesecheckers.board.Pawn;
+import com.chinesecheckers.board.StandardField;
+import com.chinesecheckers.game.StandardGameManager;
+import com.chinesecheckers.interfaces.Field;
+import com.chinesecheckers.interfaces.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

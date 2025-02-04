@@ -1,7 +1,7 @@
-package com.example.trylma.interfaces;
+package com.chinesecheckers.interfaces;
 
-import com.example.trylma.board.ChineseCheckersBoard;
-import com.example.trylma.board.Move;
+import com.chinesecheckers.board.ChineseCheckersBoard;
+import com.chinesecheckers.board.Move;
 
 public interface GameManager {
     ChineseCheckersBoard getBoard();

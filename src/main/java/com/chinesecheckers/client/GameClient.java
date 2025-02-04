@@ -1,4 +1,4 @@
-package com.example.trylma.client;
+package com.chinesecheckers.client;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,24 +11,24 @@ import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 
-import com.example.trylma.board.Move;
-import com.example.trylma.exceptions.InvalidMoveException;
-import com.example.trylma.interfaces.ClientObserver;
-import com.example.trylma.packets.BoardUpdatePacket;
-import com.example.trylma.packets.FieldData;
-import com.example.trylma.packets.GameSettingsPacket;
-import com.example.trylma.packets.InvalidGameSettingsPacket;
-import com.example.trylma.packets.InvalidMovePacket;
-import com.example.trylma.packets.MovePacket;
-import com.example.trylma.packets.RequestGameSettingsPacket;
-import com.example.trylma.packets.RequestUsernamePacket;
-import com.example.trylma.packets.TextMessagePacket;
-import com.example.trylma.packets.TurnSkipPacket;
-import com.example.trylma.packets.TurnUpdatePacket;
-import com.example.trylma.packets.UsernamePacket;
-import com.example.trylma.packets.WinPacket;
-import com.example.trylma.parsers.StandardMoveParser;
-import com.example.trylma.server.ServerPacket;
+import com.chinesecheckers.board.Move;
+import com.chinesecheckers.exceptions.InvalidMoveException;
+import com.chinesecheckers.interfaces.ClientObserver;
+import com.chinesecheckers.packets.BoardUpdatePacket;
+import com.chinesecheckers.packets.FieldData;
+import com.chinesecheckers.packets.GameSettingsPacket;
+import com.chinesecheckers.packets.InvalidGameSettingsPacket;
+import com.chinesecheckers.packets.InvalidMovePacket;
+import com.chinesecheckers.packets.MovePacket;
+import com.chinesecheckers.packets.RequestGameSettingsPacket;
+import com.chinesecheckers.packets.RequestUsernamePacket;
+import com.chinesecheckers.packets.TextMessagePacket;
+import com.chinesecheckers.packets.TurnSkipPacket;
+import com.chinesecheckers.packets.TurnUpdatePacket;
+import com.chinesecheckers.packets.UsernamePacket;
+import com.chinesecheckers.packets.WinPacket;
+import com.chinesecheckers.parsers.StandardMoveParser;
+import com.chinesecheckers.server.ServerPacket;
 
 public class GameClient {
     private final String serverAddress;

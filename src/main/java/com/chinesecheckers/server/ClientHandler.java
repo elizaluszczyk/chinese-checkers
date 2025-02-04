@@ -1,30 +1,30 @@
-package com.example.trylma.server;
+package com.chinesecheckers.server;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import com.example.trylma.board.ChineseCheckersBoard;
-import com.example.trylma.board.Move;
-import com.example.trylma.game.BotPlayer;
-import com.example.trylma.game.GamePlayer;
-import com.example.trylma.game.GameType;
-import com.example.trylma.game.StandardGameManager;
-import com.example.trylma.interfaces.GameManager;
-import com.example.trylma.interfaces.Player;
-import com.example.trylma.packets.BoardUpdatePacket;
-import com.example.trylma.packets.GameSettingsPacket;
-import com.example.trylma.packets.InvalidGameSettingsPacket;
-import com.example.trylma.packets.InvalidMovePacket;
-import com.example.trylma.packets.MovePacket;
-import com.example.trylma.packets.RequestGameSettingsPacket;
-import com.example.trylma.packets.RequestUsernamePacket;
-import com.example.trylma.packets.TextMessagePacket;
-import com.example.trylma.packets.TurnSkipPacket;
-import com.example.trylma.packets.TurnUpdatePacket;
-import com.example.trylma.packets.UsernamePacket;
-import com.example.trylma.packets.WinPacket;
+import com.chinesecheckers.board.ChineseCheckersBoard;
+import com.chinesecheckers.board.Move;
+import com.chinesecheckers.game.BotPlayer;
+import com.chinesecheckers.game.GamePlayer;
+import com.chinesecheckers.game.GameType;
+import com.chinesecheckers.game.StandardGameManager;
+import com.chinesecheckers.interfaces.GameManager;
+import com.chinesecheckers.interfaces.Player;
+import com.chinesecheckers.packets.BoardUpdatePacket;
+import com.chinesecheckers.packets.GameSettingsPacket;
+import com.chinesecheckers.packets.InvalidGameSettingsPacket;
+import com.chinesecheckers.packets.InvalidMovePacket;
+import com.chinesecheckers.packets.MovePacket;
+import com.chinesecheckers.packets.RequestGameSettingsPacket;
+import com.chinesecheckers.packets.RequestUsernamePacket;
+import com.chinesecheckers.packets.TextMessagePacket;
+import com.chinesecheckers.packets.TurnSkipPacket;
+import com.chinesecheckers.packets.TurnUpdatePacket;
+import com.chinesecheckers.packets.UsernamePacket;
+import com.chinesecheckers.packets.WinPacket;
 
 public class ClientHandler implements Runnable {
     private final Socket clientSocket;

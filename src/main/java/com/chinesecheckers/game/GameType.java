@@ -1,4 +1,4 @@
-package com.example.trylma.game;
+package com.chinesecheckers.game;
 
 public enum GameType {
     DEFAULT,

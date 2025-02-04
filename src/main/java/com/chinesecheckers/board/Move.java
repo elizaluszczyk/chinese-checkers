@@ -1,4 +1,4 @@
-package com.example.trylma.board;
+package com.chinesecheckers.board;
 
 import java.io.Serializable;
 

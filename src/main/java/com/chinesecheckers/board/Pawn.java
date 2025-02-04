@@ -1,8 +1,8 @@
-package com.example.trylma.board;
+package com.chinesecheckers.board;
 
 import java.io.Serializable;
 
-import com.example.trylma.interfaces.Field;
+import com.chinesecheckers.interfaces.Field;
 
 public class Pawn implements Serializable {
     private static final long serialVersionUID = 1L;

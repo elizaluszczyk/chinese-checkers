@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 
 
-<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.trylma.gui.BoardController">
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chinesecheckers.gui.BoardController">
    <children>
       <HBox alignment="CENTER_LEFT" prefHeight="37.0" prefWidth="600.0">
          <children>

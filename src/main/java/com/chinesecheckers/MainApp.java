@@ -1,10 +1,10 @@
-package com.example.trylma;
+package com.chinesecheckers;
 
 import java.io.IOException;
 
-import com.example.trylma.client.GameClient;
-import com.example.trylma.gui.BoardController;
-import com.example.trylma.server.GameServer;
+import com.chinesecheckers.client.GameClient;
+import com.chinesecheckers.gui.BoardController;
+import com.chinesecheckers.server.GameServer;
 
 import atlantafx.base.theme.PrimerDark;
 import javafx.application.Application;

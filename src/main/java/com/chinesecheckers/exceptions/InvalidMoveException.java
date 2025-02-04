@@ -1,4 +1,4 @@
-package com.example.trylma.exceptions;
+package com.chinesecheckers.exceptions;
 
 public class InvalidMoveException extends Exception {
     public InvalidMoveException(String message) {

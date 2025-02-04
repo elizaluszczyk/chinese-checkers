@@ -1,6 +1,6 @@
-package com.example.trylma.board;
+package com.chinesecheckers.board;
 
-import com.example.trylma.game.BotPlayer;
+import com.chinesecheckers.game.BotPlayer;
 
 public class DefaultBoardWithBotPlayer extends DefaultBoardWithPlacedPawns {
     private final BotPlayer botPlayer;

@@ -3,7 +3,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.example.trylma</groupId>
+  <groupId>com.chinesecheckers</groupId>
   <artifactId>trylma</artifactId>
   <version>1.0-SNAPSHOT</version>
 
@@ -92,7 +92,7 @@
             </execution>
           </executions>
           <configuration>
-            <mainClass>com.example.trylma.MainApp</mainClass>
+            <mainClass>com.chinesecheckers.MainApp</mainClass>
           </configuration>
         </plugin>
         <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
@@ -146,7 +146,7 @@
             </execution>
           </executions>
           <configuration>
-            <mainClass>com.example.trylma.MainApp</mainClass>
+            <mainClass>com.chinesecheckers.MainApp</mainClass>
              <arguments>
                     <argument>--module-path</argument>
                     <!--suppress UnresolvedMavenProperty -->

@@ -1,8 +1,8 @@
-package com.example.trylma.interfaces;
+package com.chinesecheckers.interfaces;
 
 import java.util.ArrayList;
 
-import com.example.trylma.board.Pawn;
+import com.chinesecheckers.board.Pawn;
 
 public interface Player {
     String getUsername();

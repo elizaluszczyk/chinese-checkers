@@ -1,11 +1,11 @@
-package com.example.trylma.board;
+package com.chinesecheckers.board;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import com.example.trylma.interfaces.Board;
-import com.example.trylma.interfaces.Field;
-import com.example.trylma.interfaces.Player;
+import com.chinesecheckers.interfaces.Board;
+import com.chinesecheckers.interfaces.Field;
+import com.chinesecheckers.interfaces.Player;
 
 public class ChineseCheckersBoard implements Board, Serializable {
     private static final long serialVersionUID = 1L;

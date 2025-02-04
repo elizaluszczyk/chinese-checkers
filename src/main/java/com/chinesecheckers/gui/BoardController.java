@@ -1,4 +1,4 @@
-package com.example.trylma.gui;
+package com.chinesecheckers.gui;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -8,22 +8,22 @@ import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
 
-import com.example.trylma.MainApp;
-import com.example.trylma.board.Move;
-import com.example.trylma.client.GameClient;
-import com.example.trylma.interfaces.ClientObserver;
-import com.example.trylma.packets.BoardUpdatePacket;
-import com.example.trylma.packets.FieldData;
-import com.example.trylma.packets.GameSettingsPacket;
-import com.example.trylma.packets.InvalidMovePacket;
-import com.example.trylma.packets.MovePacket;
-import com.example.trylma.packets.RequestGameSettingsPacket;
-import com.example.trylma.packets.RequestUsernamePacket;
-import com.example.trylma.packets.TextMessagePacket;
-import com.example.trylma.packets.TurnUpdatePacket;
-import com.example.trylma.packets.UsernamePacket;
-import com.example.trylma.packets.WinPacket;
-import com.example.trylma.server.ServerPacket;
+import com.chinesecheckers.MainApp;
+import com.chinesecheckers.board.Move;
+import com.chinesecheckers.client.GameClient;
+import com.chinesecheckers.interfaces.ClientObserver;
+import com.chinesecheckers.packets.BoardUpdatePacket;
+import com.chinesecheckers.packets.FieldData;
+import com.chinesecheckers.packets.GameSettingsPacket;
+import com.chinesecheckers.packets.InvalidMovePacket;
+import com.chinesecheckers.packets.MovePacket;
+import com.chinesecheckers.packets.RequestGameSettingsPacket;
+import com.chinesecheckers.packets.RequestUsernamePacket;
+import com.chinesecheckers.packets.TextMessagePacket;
+import com.chinesecheckers.packets.TurnUpdatePacket;
+import com.chinesecheckers.packets.UsernamePacket;
+import com.chinesecheckers.packets.WinPacket;
+import com.chinesecheckers.server.ServerPacket;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;

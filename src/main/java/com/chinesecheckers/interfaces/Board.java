@@ -1,4 +1,4 @@
-package com.example.trylma.interfaces;
+package com.chinesecheckers.interfaces;
 
 import java.util.ArrayList;
 

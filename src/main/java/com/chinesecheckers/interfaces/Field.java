@@ -1,6 +1,6 @@
-package com.example.trylma.interfaces;
+package com.chinesecheckers.interfaces;
 
-import com.example.trylma.board.Pawn;
+import com.chinesecheckers.board.Pawn;
 
 public interface Field {
     int getX();

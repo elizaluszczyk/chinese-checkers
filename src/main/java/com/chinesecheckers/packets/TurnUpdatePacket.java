@@ -1,6 +1,6 @@
-package com.example.trylma.packets;
+package com.chinesecheckers.packets;
 
-import com.example.trylma.server.ServerPacket;
+import com.chinesecheckers.server.ServerPacket;
 
 public class TurnUpdatePacket implements ServerPacket {
     private final String message;
