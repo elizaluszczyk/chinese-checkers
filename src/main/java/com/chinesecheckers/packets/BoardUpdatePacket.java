@@ -1,9 +1,9 @@
-package com.example.trylma.packets;
+package com.chinesecheckers.packets;
 
 import java.util.ArrayList;
 
-import com.example.trylma.interfaces.Field;
-import com.example.trylma.server.ServerPacket;
+import com.chinesecheckers.interfaces.Field;
+import com.chinesecheckers.server.ServerPacket;
 
 public class BoardUpdatePacket implements ServerPacket {
     private static final long serialVersionUID = 1L;

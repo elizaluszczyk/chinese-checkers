@@ -1,10 +1,10 @@
-package com.example.trylma.board;
+package com.chinesecheckers.board;
 
 import java.util.ArrayList;
 
-import com.example.trylma.interfaces.Field;
-import com.example.trylma.interfaces.Player;
-import com.example.trylma.server.GameServer;
+import com.chinesecheckers.interfaces.Field;
+import com.chinesecheckers.interfaces.Player;
+import com.chinesecheckers.server.GameServer;
 
 public class DefaultBoardWithPlacedPawns extends ChineseCheckersBoard {
     protected final ArrayList<Player> listOfPlayers;

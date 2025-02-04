@@ -1,4 +1,4 @@
-package com.example.trylma.exceptions;
+package com.chinesecheckers.exceptions;
 
 public class InvalidGameSettingsException extends Exception {
     public InvalidGameSettingsException(String message) {

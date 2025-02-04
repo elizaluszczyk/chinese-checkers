@@ -1,12 +1,12 @@
-package com.example.trylma.factories;
+package com.chinesecheckers.factories;
 
-import com.example.trylma.board.ChineseCheckersBoard;
-import com.example.trylma.board.DefaultBoardWithBotPlayer;
-import com.example.trylma.board.DefaultBoardWithPlacedPawns;
-import com.example.trylma.board.YinAndYangBoard;
-import com.example.trylma.game.BotPlayer;
-import com.example.trylma.game.GameType;
-import com.example.trylma.server.GameServer;
+import com.chinesecheckers.board.ChineseCheckersBoard;
+import com.chinesecheckers.board.DefaultBoardWithBotPlayer;
+import com.chinesecheckers.board.DefaultBoardWithPlacedPawns;
+import com.chinesecheckers.board.YinAndYangBoard;
+import com.chinesecheckers.game.BotPlayer;
+import com.chinesecheckers.game.GameType;
+import com.chinesecheckers.server.GameServer;
 
 public class BoardFactory {
     public static ChineseCheckersBoard createBoard(String gameTypeString, int numberOfPlayers) {

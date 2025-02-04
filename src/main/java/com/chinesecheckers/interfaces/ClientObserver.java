@@ -1,6 +1,6 @@
-package com.example.trylma.interfaces;
+package com.chinesecheckers.interfaces;
 
-import com.example.trylma.server.ServerPacket;
+import com.chinesecheckers.server.ServerPacket;
 
 public interface ClientObserver {
     void notifyPacket(ServerPacket serverPacket);

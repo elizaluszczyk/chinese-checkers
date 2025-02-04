@@ -1,8 +1,8 @@
-package com.example.trylma.gui;
+package com.chinesecheckers.gui;
 
 import java.io.IOException;
 
-import com.example.trylma.MainApp;
+import com.chinesecheckers.MainApp;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;

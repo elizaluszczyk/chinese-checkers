@@ -1,4 +1,4 @@
-package com.example.trylma.packets;
+package com.chinesecheckers.packets;
 
 import java.io.Serializable;
 

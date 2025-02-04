@@ -1,4 +1,4 @@
-package com.example.trylma.server;
+package com.chinesecheckers.server;
 
 import java.io.Serializable;
 

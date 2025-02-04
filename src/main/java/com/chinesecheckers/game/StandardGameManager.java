@@ -1,17 +1,17 @@
-package com.example.trylma.game;
+package com.chinesecheckers.game;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import com.example.trylma.board.ChineseCheckersBoard;
-import com.example.trylma.board.Move;
-import com.example.trylma.board.Pawn;
-import com.example.trylma.factories.BoardFactory;
-import com.example.trylma.interfaces.Field;
-import com.example.trylma.interfaces.GameManager;
-import com.example.trylma.interfaces.Player;
+import com.chinesecheckers.board.ChineseCheckersBoard;
+import com.chinesecheckers.board.Move;
+import com.chinesecheckers.board.Pawn;
+import com.chinesecheckers.factories.BoardFactory;
+import com.chinesecheckers.interfaces.Field;
+import com.chinesecheckers.interfaces.GameManager;
+import com.chinesecheckers.interfaces.Player;
 
 public class StandardGameManager implements GameManager {
     private final ChineseCheckersBoard board;

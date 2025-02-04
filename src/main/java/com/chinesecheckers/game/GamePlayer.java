@@ -1,11 +1,11 @@
-package com.example.trylma.game;
+package com.chinesecheckers.game;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import com.example.trylma.board.Pawn;
-import com.example.trylma.interfaces.Field;
-import com.example.trylma.interfaces.Player;
+import com.chinesecheckers.board.Pawn;
+import com.chinesecheckers.interfaces.Field;
+import com.chinesecheckers.interfaces.Player;
 
 public class GamePlayer implements Player, Serializable {
     private static final long serialVersionUID = 1L;

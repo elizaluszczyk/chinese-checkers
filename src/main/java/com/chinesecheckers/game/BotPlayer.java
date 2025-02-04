@@ -1,12 +1,12 @@
-package com.example.trylma.game;
+package com.chinesecheckers.game;
 
 import java.util.ArrayList;
 import java.util.Random;
 
-import com.example.trylma.board.ChineseCheckersBoard;
-import com.example.trylma.board.Move;
-import com.example.trylma.board.Pawn;
-import com.example.trylma.interfaces.Field;
+import com.chinesecheckers.board.ChineseCheckersBoard;
+import com.chinesecheckers.board.Move;
+import com.chinesecheckers.board.Pawn;
+import com.chinesecheckers.interfaces.Field;
 
 public class BotPlayer extends GamePlayer {
 

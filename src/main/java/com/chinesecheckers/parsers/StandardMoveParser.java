@@ -1,8 +1,8 @@
-package com.example.trylma.parsers;
+package com.chinesecheckers.parsers;
 
-import com.example.trylma.board.Move;
-import com.example.trylma.exceptions.InvalidMoveException;
-import com.example.trylma.interfaces.MoveParser;
+import com.chinesecheckers.board.Move;
+import com.chinesecheckers.exceptions.InvalidMoveException;
+import com.chinesecheckers.interfaces.MoveParser;
 
 public class StandardMoveParser implements MoveParser {
 

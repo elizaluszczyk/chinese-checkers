@@ -1,4 +1,4 @@
-package com.example.trylma;
+package com.chinesecheckers;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

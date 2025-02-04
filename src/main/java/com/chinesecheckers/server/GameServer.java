@@ -1,4 +1,4 @@
-package com.example.trylma.server;
+package com.chinesecheckers.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -6,11 +6,11 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Random;
 
-import com.example.trylma.board.ChineseCheckersBoard;
-import com.example.trylma.board.Move;
-import com.example.trylma.game.BotPlayer;
-import com.example.trylma.interfaces.GameManager;
-import com.example.trylma.interfaces.Player;
+import com.chinesecheckers.board.ChineseCheckersBoard;
+import com.chinesecheckers.board.Move;
+import com.chinesecheckers.game.BotPlayer;
+import com.chinesecheckers.interfaces.GameManager;
+import com.chinesecheckers.interfaces.Player;
 
 public class GameServer {
     private final int port;

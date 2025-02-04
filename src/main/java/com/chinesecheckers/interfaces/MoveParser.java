@@ -1,7 +1,7 @@
-package com.example.trylma.interfaces;
+package com.chinesecheckers.interfaces;
 
-import com.example.trylma.board.Move;
-import com.example.trylma.exceptions.InvalidMoveException;
+import com.chinesecheckers.board.Move;
+import com.chinesecheckers.exceptions.InvalidMoveException;
 
 public interface MoveParser {
     Move parseMove(String message) throws InvalidMoveException;
