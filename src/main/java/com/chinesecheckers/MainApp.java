@@ -3,7 +3,6 @@ package com.chinesecheckers;
 import java.io.IOException;
 
 import com.chinesecheckers.client.GameClient;
-import com.chinesecheckers.gui.BoardController;
 import com.chinesecheckers.server.GameServer;
 
 import atlantafx.base.theme.PrimerDark;
@@ -11,7 +10,6 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 public class MainApp extends Application {
