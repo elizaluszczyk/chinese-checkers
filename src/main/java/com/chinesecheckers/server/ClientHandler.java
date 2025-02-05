@@ -193,6 +193,7 @@ public class ClientHandler implements Runnable {
             case TURN_UPDATE -> new TurnUpdatePacket((String) args[0]);
             case INVALID_GAME_SETTINGS -> new InvalidGameSettingsPacket((String) args[0]);
             case WIN -> new WinPacket((String) args[0]);
+            case TURN_SKIP, USERNAME, GAME_SETTINGS -> throw new UnknownPacketException("Cannot transmit server-to-client packet type: " + type);
             default -> throw new UnknownPacketException("Unknown packet type: " + type);
         };
         transmitPacket(packet);
@@ -200,15 +201,17 @@ public class ClientHandler implements Runnable {
 
     // packet handling methods
     private void handlePacket(ServerPacket packet) throws UnknownPacketException {
-    switch (packet.getType()) {
-        case TEXT_MESSAGE -> handleTextMessage((TextMessagePacket) packet);
-        case MOVE -> handleMove((MovePacket) packet);
-        case USERNAME -> handleUsername((UsernamePacket) packet);
-        case GAME_SETTINGS -> handleGameSettings((GameSettingsPacket) packet);
-        case TURN_SKIP -> handleTurnSkipPacket();
-        default -> throw new UnknownPacketException("Unknown or unhandled packet type: " + packet.getType());
+        switch (packet.getType()) {
+            case TEXT_MESSAGE -> handleTextMessage((TextMessagePacket) packet);
+            case MOVE -> handleMove((MovePacket) packet);
+            case USERNAME -> handleUsername((UsernamePacket) packet);
+            case GAME_SETTINGS -> handleGameSettings((GameSettingsPacket) packet);
+            case TURN_SKIP -> handleTurnSkipPacket();
+            case BOARD_UPDATE, INVALID_MOVE, REQUEST_USERNAME, REQUEST_GAME_SETTINGS,
+                 TURN_UPDATE, INVALID_GAME_SETTINGS, WIN -> throw new UnknownPacketException("Unexpected client-to-server packet received: " + packet.getType());
+            default -> throw new UnknownPacketException("Unknown packet type: " + packet.getType());
+        }
     }
-}
 
     private void handleTextMessage(TextMessagePacket packet) throws UnknownPacketException {
         String message = packet.getMessageString();
