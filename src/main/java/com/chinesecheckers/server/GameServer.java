@@ -20,31 +20,24 @@ public class GameServer {
     
     // server configuration
     private final int port;
+    
+    // game state variables
     private static int numberOfPlayers = 0;
     private static String gameType = null;
+    private static Integer currentPlayerIndex = null;
+    private static BotPlayer botPlayer;
+
     protected static final ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
     protected static final ArrayList<Player> players = new ArrayList<>();
     protected static final ArrayList<String> playersWhoWon = new ArrayList<>();
+
     protected static GameManager gameManager;
-    protected static Integer currentPlayerIndex = null;
-    private static BotPlayer botPlayer;
 
     public GameServer(int port) {
         this.port = port;
     }
 
-    public static void addPlayer(Player player) {
-        players.add(player);
-    }
-
-    public static ArrayList<String> getPlayersWhoWon() {
-        return playersWhoWon;
-    }
-
-    public static void addWinner(String winner) {
-        playersWhoWon.add(winner);
-    }
-
+    // server methods
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             logger.info("Server running on port {}", port);
@@ -61,6 +54,24 @@ public class GameServer {
         }
     }
 
+    // player management methods
+    public static void addPlayer(Player player) {
+        players.add(player);
+    }
+    
+    public static ArrayList<Player> getAllPlayers() {
+        return players;
+    }
+    
+    public static ArrayList<String> getPlayersWhoWon() {
+        return playersWhoWon;
+    }
+
+    public static void addWinner(String winner) {
+        playersWhoWon.add(winner);
+    }
+    
+    // game configuration methods
     public static int getNumberOfPlayers() {
         return numberOfPlayers;
     }
@@ -76,13 +87,16 @@ public class GameServer {
     public static void setGameType(String gameType) {
         GameServer.gameType = gameType;
     }
-
-    private static void notifyCurrentPlayer() {
-        ClientHandler currentHandler = clientHandlers.get(currentPlayerIndex);
-        System.out.println("Notifying player " + currentHandler.getPlayer().getUsername() + " that it's their turn.");
-        currentHandler.transmitTurnUpdate("It's your turn!");
+    
+    public static BotPlayer getBotPlayer() {
+        return botPlayer;
     }
 
+    public static void setBotPlayer(BotPlayer botPlayer) {
+        GameServer.botPlayer = botPlayer;
+    }
+
+    // turn management methods
     public static void setCurrentPlayerIndex(int index) {
         currentPlayerIndex = index;
         logger.debug("Current player index: {}", currentPlayerIndex);
@@ -147,6 +161,7 @@ public class GameServer {
         }
     }
 
+    // communication methods
     public static synchronized void broadcastMessage(String message, ClientHandler sender) {
         String formattedMessage = (sender != null && sender.getPlayer() != null)
                 ? sender.getPlayer().getUsername() + ": " + message
@@ -163,17 +178,5 @@ public class GameServer {
         for (ClientHandler client : clientHandlers) {
             client.transmitBoardUpdate(board);
         }
-    }
-
-    public static ArrayList<Player> getAllPlayers() {
-        return players;
-    }
-
-    public static BotPlayer getBotPlayer() {
-        return botPlayer;
-    }
-
-    public static void setBotPlayer(BotPlayer botPlayer) {
-        GameServer.botPlayer = botPlayer;
     }
 }
