@@ -31,6 +31,11 @@ import com.chinesecheckers.packets.WinPacket;
 
 public class ClientHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(ClientHandler.class);
+
+    // constants for game types
+    private static final String GAME_TYPE_DEFAULT = "default";
+    private static final String GAME_TYPE_DEFAULT_WITH_BOT = "defaultWithBot";
+    private static final String GAME_TYPE_YIN_YANG = "YinAndYang";
     
     private final Socket clientSocket;
     private final ObjectOutputStream objectOutputStream;
@@ -69,7 +74,7 @@ public class ClientHandler implements Runnable {
                 GameServer.players.add(this.getPlayer());
                 setupGameSettings(GameServer.clientHandlers.size());
 
-                if (GameServer.getGameType().equals("defaultWithBot")) {
+                if (GameServer.getGameType().equals(GAME_TYPE_DEFAULT_WITH_BOT)) {
                     handleDefaultWithBotGameStart();
                 } else {
                     handleStandardGameStart();
@@ -137,9 +142,9 @@ public class ClientHandler implements Runnable {
     // validation methods
     private boolean validateNumberOfPlayers(String gameType, int numberOfPlayers) {
         boolean isValid = switch (gameType) {
-            case "default" -> numberOfPlayers >= 2 && numberOfPlayers != 5 && numberOfPlayers <= 6;
-            case "defaultWithBot" -> numberOfPlayers >= 1 && numberOfPlayers != 4 && numberOfPlayers <= 5;
-            case "YinAndYang" -> numberOfPlayers == 2;
+            case GAME_TYPE_DEFAULT -> numberOfPlayers >= 2 && numberOfPlayers != 5 && numberOfPlayers <= 6;
+            case GAME_TYPE_DEFAULT_WITH_BOT -> numberOfPlayers >= 1 && numberOfPlayers != 4 && numberOfPlayers <= 5;
+            case GAME_TYPE_YIN_YANG -> numberOfPlayers == 2;
             default -> false; 
         };
     
