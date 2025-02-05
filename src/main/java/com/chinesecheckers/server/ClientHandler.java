@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.chinesecheckers.board.ChineseCheckersBoard;
 import com.chinesecheckers.board.Move;
+import com.chinesecheckers.exceptions.UnknownPacketException;
 import com.chinesecheckers.game.BotPlayer;
 import com.chinesecheckers.game.GamePlayer;
 import com.chinesecheckers.game.GameType;
@@ -21,10 +22,10 @@ import com.chinesecheckers.packets.GameSettingsPacket;
 import com.chinesecheckers.packets.InvalidGameSettingsPacket;
 import com.chinesecheckers.packets.InvalidMovePacket;
 import com.chinesecheckers.packets.MovePacket;
+import com.chinesecheckers.packets.PacketType;
 import com.chinesecheckers.packets.RequestGameSettingsPacket;
 import com.chinesecheckers.packets.RequestUsernamePacket;
 import com.chinesecheckers.packets.TextMessagePacket;
-import com.chinesecheckers.packets.TurnSkipPacket;
 import com.chinesecheckers.packets.TurnUpdatePacket;
 import com.chinesecheckers.packets.UsernamePacket;
 import com.chinesecheckers.packets.WinPacket;
@@ -88,29 +89,35 @@ public class ClientHandler implements Runnable {
             }
         } catch (IOException | ClassNotFoundException e) {
             logger.error("Connection lost with client: {}", player != null ? player.getUsername() : "unknown", e);
+        } catch (UnknownPacketException e) {
+            logger.error("Unknown packet received from client: {}", player != null ? player.getUsername() : "unknown", e);
         } finally {
-            cleanup();
+            try {
+                cleanup();
+            } catch (UnknownPacketException e) {
+                logger.error("Unknown packet received from client: {}", player != null ? player.getUsername() : "unknown", e);
+            }
         }
     }
     
     // player and game setup methods
-    private void setupPlayer() throws ClassNotFoundException, IOException {
-        transmitRequestUsername("Enter your username:");
+    private void setupPlayer() throws ClassNotFoundException, IOException, UnknownPacketException {
+        transmit(PacketType.REQUEST_USERNAME, "Enter your username:");
         ServerPacket serverPacket = (ServerPacket) objectInputStream.readObject();
         handlePacket(serverPacket);
     }
 
-    private void setupGameSettings(int currentPlayers) throws ClassNotFoundException, IOException {
+    private void setupGameSettings(int currentPlayers) throws ClassNotFoundException, IOException, UnknownPacketException {
         if (currentPlayers == 1) {
-            transmitRequestGameSettings("Enter the number of players (2, 3, 4, or 6)", "Enter the game variant (default)");
+            transmit(PacketType.REQUEST_GAME_SETTINGS, "Enter the number of players (2, 3, 4, or 6)", "Enter the game variant (default)");
             ServerPacket serverPacket = (ServerPacket) objectInputStream.readObject();
             handlePacket(serverPacket);
         } else {
-            transmitMessage("Game settings already configured. Joining the game...");
+            transmit(PacketType.TEXT_MESSAGE, "Game settings already configured. Joining the game...");
         }
     }
     
-    private void handleDefaultWithBotGameStart() {
+    private void handleDefaultWithBotGameStart() throws UnknownPacketException {
         if (GameServer.clientHandlers.size() == GameServer.getNumberOfPlayers()) {
             BotPlayer botPlayer = new BotPlayer("botPlayer");
             GameServer.setBotPlayer(botPlayer);
@@ -123,13 +130,13 @@ public class ClientHandler implements Runnable {
         }
     }
     
-    private void handleStandardGameStart() {
+    private void handleStandardGameStart() throws UnknownPacketException {
         if (GameServer.players.size() == GameServer.getNumberOfPlayers()) {
             initializeGameManager();
         }
     }
     
-    private void initializeGameManager() {
+    private void initializeGameManager() throws UnknownPacketException {
         GameManagerSingleton.setInstance(new StandardGameManager(GameServer.getGameType(), GameServer.getNumberOfPlayers()));
         GameServer.broadcastMessage("The game is starting!", null);
 
@@ -140,7 +147,7 @@ public class ClientHandler implements Runnable {
     }
 
     // validation methods
-    private boolean validateNumberOfPlayers(String gameType, int numberOfPlayers) {
+    private boolean validateNumberOfPlayers(String gameType, int numberOfPlayers) throws UnknownPacketException {
         boolean isValid = switch (gameType) {
             case GAME_TYPE_DEFAULT -> numberOfPlayers >= 2 && numberOfPlayers != 5 && numberOfPlayers <= 6;
             case GAME_TYPE_DEFAULT_WITH_BOT -> numberOfPlayers >= 1 && numberOfPlayers != 4 && numberOfPlayers <= 5;
@@ -149,58 +156,22 @@ public class ClientHandler implements Runnable {
         };
     
         if (!isValid) {
-            transmitInvalidGameSettings("Invalid number of players, enter settings again");
+            transmit(PacketType.INVALID_GAME_SETTINGS, "Invalid number of players, enter settings again");
         }
     
         return isValid;
     }
 
-    private boolean validateGameType(String gameType) {
+    private boolean validateGameType(String gameType) throws UnknownPacketException {
         if (GameType.fromString(gameType) != null) {
             return true;
         } else {
-            transmitInvalidGameSettings("Invalid game type, enter settings again");
+            transmit(PacketType.INVALID_GAME_SETTINGS, "Invalid game type, enter settings again");
             return false;
         }
     }
 
     // packet transmission methods
-    public void transmitMessage(String message) {
-        transmitPacket(new TextMessagePacket(message));
-    }
-
-    public void transmitMove(Move move) {
-        transmitPacket(new MovePacket(move));
-    }
-
-    public void transmitBoardUpdate(ChineseCheckersBoard board) {
-        transmitPacket(new BoardUpdatePacket(board.getBoard()));
-    }
-
-    public void transmitInvalidMove(Move invalidMove) {
-        transmitPacket(new InvalidMovePacket(invalidMove));
-    }
-
-    public void transmitRequestUsername(String message) {
-        transmitPacket(new RequestUsernamePacket(message));
-    }
-
-    public void transmitRequestGameSettings(String numberOfPlayersMessage, String gameTypeMessage) {
-        transmitPacket(new RequestGameSettingsPacket(numberOfPlayersMessage, gameTypeMessage));
-    }
-
-    public void transmitTurnUpdate(String message) {
-        transmitPacket(new TurnUpdatePacket(message));
-    }
-
-    public void transmitInvalidGameSettings(String message) {
-        transmitPacket(new InvalidGameSettingsPacket(message));
-    }
-
-    public void transmitWin(String message) {
-        transmitPacket(new WinPacket(message));
-    }
-
     private void transmitPacket(ServerPacket packet) {
         try {
             logger.debug("Sending packet: {}", packet.getClass().getName());
@@ -209,6 +180,22 @@ public class ClientHandler implements Runnable {
         } catch (IOException e) {
             logger.error("Failed to transmit packet", e);
         }
+    }
+
+    public void transmit(PacketType type, Object... args) throws UnknownPacketException {
+        ServerPacket packet = switch (type) {
+            case TEXT_MESSAGE -> new TextMessagePacket((String) args[0]);
+            case MOVE -> new MovePacket((Move) args[0]);
+            case BOARD_UPDATE -> new BoardUpdatePacket(((ChineseCheckersBoard) args[0]).getBoard());
+            case INVALID_MOVE -> new InvalidMovePacket((Move) args[0]);
+            case REQUEST_USERNAME -> new RequestUsernamePacket((String) args[0]);
+            case REQUEST_GAME_SETTINGS -> new RequestGameSettingsPacket((String) args[0], (String) args[1]);
+            case TURN_UPDATE -> new TurnUpdatePacket((String) args[0]);
+            case INVALID_GAME_SETTINGS -> new InvalidGameSettingsPacket((String) args[0]);
+            case WIN -> new WinPacket((String) args[0]);
+            default -> throw new UnknownPacketException("Unknown packet type: " + type);
+        };
+        transmitPacket(packet);
     }
 
     // packet handling methods
@@ -227,21 +214,22 @@ public class ClientHandler implements Runnable {
             logger.warn("Unknown packet type received: {}", packet.getClass().getName());
         }
     }
+}
 
-    private void handleTextMessage(TextMessagePacket packet) {
+    private void handleTextMessage(TextMessagePacket packet) throws UnknownPacketException {
         String message = packet.getMessageString();
         logger.info("Received text message: {}", message);
         GameServer.broadcastMessage(message, this);
     }
 
-    private void handleMove(MovePacket packet) {
+    private void handleMove(MovePacket packet) throws UnknownPacketException {
         Move move = packet.getMove();
         logger.info("Received move: {}", move);
 
         gameManager = GameManagerSingleton.getInstance();
 
         if (!isPlayerTurn()) {
-            transmitInvalidMove(move);
+            transmit(PacketType.MOVE, move);
             return;
         }
 
@@ -252,19 +240,19 @@ public class ClientHandler implements Runnable {
         if (gameManager.isMoveValid(move, this.getPlayer())) {
             processValidMove(move);
         } else {
-            transmitInvalidMove(move);
-            transmitTurnUpdate("Move was invalid. Try again, it's your turn!");
+            transmit(PacketType.INVALID_MOVE, move);
+            transmit(PacketType.TURN_UPDATE, "Move was invalid. Try again, it's your turn!");
         }
     }
     
-    private void processValidMove(Move move) {
+    private void processValidMove(Move move) throws UnknownPacketException {
         gameManager.applyMove(move);
 
         ChineseCheckersBoard updatedBoard = gameManager.getBoard();
         GameServer.broadcastBoardUpdate(updatedBoard, this);
 
         if (gameManager.isWinningMove(this.getPlayer())) {
-            transmitWin("You win! End of the game");
+            transmit(PacketType.WIN, "You win! End of the game");
             GameServer.broadcastMessage("Player " + this.getPlayer().getUsername() + " won! End of the game", this);
             GameServer.addWinner(this.getPlayer().getUsername());
         }
@@ -280,7 +268,7 @@ public class ClientHandler implements Runnable {
         logger.info("Client connected: {}", username);
     }
 
-    private void handleGameSettings(GameSettingsPacket packet) {
+    private void handleGameSettings(GameSettingsPacket packet) throws UnknownPacketException {
         int numberOfPlayers = packet.getNumberOfPlayers();
         logger.info("Received number of players: {}", numberOfPlayers);
         String gameType = packet.getGameType();
@@ -291,15 +279,15 @@ public class ClientHandler implements Runnable {
 
         validateNumberOfPlayers(gameType, numberOfPlayers);
         GameServer.setNumberOfPlayers(numberOfPlayers);
-        transmitMessage("Game settings applied: " + numberOfPlayers + " players, variant: " + gameType);
+        transmit(PacketType.TEXT_MESSAGE, "Game settings applied: " + numberOfPlayers + " players, variant: " + gameType);
     }
 
-    private void handleTurnSkipPacket() {
+    private void handleTurnSkipPacket() throws UnknownPacketException {
         GameServer.moveToNextTurn();
     }
 
     // cleanup method
-    private void cleanup() {
+    private void cleanup() throws UnknownPacketException {
         synchronized (GameServer.class) {
             GameServer.clientHandlers.remove(this);
             GameServer.players.remove(this.getPlayer());
