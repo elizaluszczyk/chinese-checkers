@@ -48,4 +48,9 @@ public class BoardUpdatePacket implements ServerPacket {
         builder.append("]");
         return builder.toString();
     }
+
+    @Override
+    public PacketType getType() {
+        return PacketType.BOARD_UPDATE;
+    }
 }

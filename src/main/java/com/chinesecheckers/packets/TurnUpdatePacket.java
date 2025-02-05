@@ -12,4 +12,9 @@ public class TurnUpdatePacket implements ServerPacket {
     public String getMessage() {
         return message;
     }
+
+    @Override
+    public PacketType getType() {
+        return PacketType.TURN_UPDATE;
+    }
 }

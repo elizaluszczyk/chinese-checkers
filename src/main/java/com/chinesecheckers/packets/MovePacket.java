@@ -14,4 +14,9 @@ public class MovePacket implements ServerPacket {
     public Move getMove() {
         return move;
     }
+
+    @Override
+    public PacketType getType() {
+        return PacketType.MOVE;
+    }
 }

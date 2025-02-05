@@ -14,4 +14,9 @@ public class InvalidMovePacket implements ServerPacket {
     public Move getInvalidMove() {
         return invalidMove;
     }
+
+    @Override
+    public PacketType getType() {
+        return PacketType.INVALID_MOVE;
+    }
 }
