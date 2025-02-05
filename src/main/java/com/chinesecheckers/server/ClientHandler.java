@@ -5,6 +5,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.chinesecheckers.board.ChineseCheckersBoard;
 import com.chinesecheckers.board.Move;
 import com.chinesecheckers.game.BotPlayer;
@@ -27,9 +30,12 @@ import com.chinesecheckers.packets.UsernamePacket;
 import com.chinesecheckers.packets.WinPacket;
 
 public class ClientHandler implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(ClientHandler.class);
+    
     private final Socket clientSocket;
     private final ObjectOutputStream objectOutputStream;
     private final ObjectInputStream objectInputStream;
+
     private Player player;
     private GameManager gameManager;
     private boolean playerTurn = true;
@@ -44,6 +50,45 @@ public class ClientHandler implements Runnable {
         return player;
     }
 
+    public boolean isPlayerTurn() {
+        return playerTurn;
+    }
+
+    public void setPlayerTurn(boolean playerTurn) {
+        this.playerTurn = playerTurn;
+    }
+
+    // core lifecycle method
+    @Override
+    public void run() {
+        try {
+            setupPlayer();
+            
+            synchronized (GameServer.class) {
+                GameServer.clientHandlers.add(this);
+                GameServer.players.add(this.getPlayer());
+                setupGameSettings(GameServer.clientHandlers.size());
+
+                if (GameServer.getGameType().equals("defaultWithBot")) {
+                    handleDefaultWithBotGameStart();
+                } else {
+                    handleStandardGameStart();
+                }
+            }
+
+            while (true) {
+                ServerPacket serverPacket = (ServerPacket) objectInputStream.readObject();
+                logger.debug("Received packet: {}", serverPacket.getClass().getName());
+                handlePacket(serverPacket);
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            logger.error("Connection lost with client: {}", player != null ? player.getUsername() : "unknown", e);
+        } finally {
+            cleanup();
+        }
+    }
+    
+    // player and game setup methods
     private void setupPlayer() throws ClassNotFoundException, IOException {
         transmitRequestUsername("Enter your username:");
         ServerPacket serverPacket = (ServerPacket) objectInputStream.readObject();
@@ -59,7 +104,37 @@ public class ClientHandler implements Runnable {
             transmitMessage("Game settings already configured. Joining the game...");
         }
     }
+    
+    private void handleDefaultWithBotGameStart() {
+        if (GameServer.clientHandlers.size() == GameServer.getNumberOfPlayers()) {
+            BotPlayer botPlayer = new BotPlayer("botPlayer");
+            GameServer.setBotPlayer(botPlayer);
+            GameServer.players.add(botPlayer);
+            logger.info("Bot player added to the game");
 
+            initializeGameManager();
+            
+            logger.debug("Players: {}", GameServer.players);
+        }
+    }
+    
+    private void handleStandardGameStart() {
+        if (GameServer.players.size() == GameServer.getNumberOfPlayers()) {
+            initializeGameManager();
+        }
+    }
+    
+    private void initializeGameManager() {
+        GameManagerSingleton.setInstance(new StandardGameManager(GameServer.getGameType(), GameServer.getNumberOfPlayers()));
+        GameServer.broadcastMessage("The game is starting!", null);
+
+        GameServer.moveToNextTurn();
+
+        gameManager = GameManagerSingleton.getInstance();
+        GameServer.broadcastBoardUpdate(gameManager.getBoard(), this);
+    }
+
+    // validation methods
     private boolean validateNumberOfPlayers(String gameType, int numberOfPlayers) {
         boolean isValid = switch (gameType) {
             case "default" -> numberOfPlayers >= 2 && numberOfPlayers != 5 && numberOfPlayers <= 6;
@@ -84,6 +159,7 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    // packet transmission methods
     public void transmitMessage(String message) {
         transmitPacket(new TextMessagePacket(message));
     }
@@ -93,7 +169,6 @@ public class ClientHandler implements Runnable {
     }
 
     public void transmitBoardUpdate(ChineseCheckersBoard board) {
-
         transmitPacket(new BoardUpdatePacket(board.getBoard()));
     }
 
@@ -123,14 +198,15 @@ public class ClientHandler implements Runnable {
 
     private void transmitPacket(ServerPacket packet) {
         try {
-            System.out.println("Sending packet: " + packet.getClass().getName());
+            logger.debug("Sending packet: {}", packet.getClass().getName());
             objectOutputStream.writeObject(packet);
             objectOutputStream.flush();
         } catch (IOException e) {
-            System.err.println("Failed to transmit packet: " + e.getMessage());
+            logger.error("Failed to transmit packet", e);
         }
     }
 
+    // packet handling methods
     private void handlePacket(ServerPacket packet) {
         if (packet instanceof TextMessagePacket textMessagePacket) {
             handleTextMessage(textMessagePacket);
@@ -143,23 +219,19 @@ public class ClientHandler implements Runnable {
         } else if (packet instanceof TurnSkipPacket) {
             handleTurnSkipPacket();
         } else {
-            System.err.println("Unknown packet type received: " + packet.getClass().getName());
+            logger.warn("Unknown packet type received: {}", packet.getClass().getName());
         }
-    }
-
-    private void handleTurnSkipPacket() {
-        GameServer.moveToNextTurn();
     }
 
     private void handleTextMessage(TextMessagePacket packet) {
         String message = packet.getMessageString();
-        System.out.println("Received text message: " + message);
+        logger.info("Received text message: {}", message);
         GameServer.broadcastMessage(message, this);
     }
 
     private void handleMove(MovePacket packet) {
         Move move = packet.getMove();
-        System.out.println("Received move: " + move);
+        logger.info("Received move: {}", move);
 
         gameManager = GameManagerSingleton.getInstance();
 
@@ -173,37 +245,41 @@ public class ClientHandler implements Runnable {
         }
         
         if (gameManager.isMoveValid(move, this.getPlayer())) {
-            gameManager.applyMove(move);
-
-            ChineseCheckersBoard updatedBoard = gameManager.getBoard();
-            GameServer.broadcastBoardUpdate(updatedBoard, this);
-
-           if (gameManager.isWinningMove(this.getPlayer())) {
-                transmitWin("You win! End of the game");
-                GameServer.broadcastMessage("Player " + this.getPlayer().getUsername() + " won! End of the game", this);
-                GameServer.addWinner(this.getPlayer().getUsername());
-            }
-
-            GameServer.moveToNextTurn();
+            processValidMove(move);
         } else {
             transmitInvalidMove(move);
             transmitTurnUpdate("Move was invalid. Try again, it's your turn!");
         }
     }
+    
+    private void processValidMove(Move move) {
+        gameManager.applyMove(move);
+
+        ChineseCheckersBoard updatedBoard = gameManager.getBoard();
+        GameServer.broadcastBoardUpdate(updatedBoard, this);
+
+        if (gameManager.isWinningMove(this.getPlayer())) {
+            transmitWin("You win! End of the game");
+            GameServer.broadcastMessage("Player " + this.getPlayer().getUsername() + " won! End of the game", this);
+            GameServer.addWinner(this.getPlayer().getUsername());
+        }
+
+        GameServer.moveToNextTurn();
+    }
 
     private void handleUsername(UsernamePacket packet) {
         String username = packet.getUsername();
-        System.out.println("Received username: " + username);
+        logger.info("Received username: {}", username);
 
         this.player = new GamePlayer(username);
-        System.out.println("Client connected: " + username);
+        logger.info("Client connected: {}", username);
     }
 
     private void handleGameSettings(GameSettingsPacket packet) {
         int numberOfPlayers = packet.getNumberOfPlayers();
-        System.out.println("Received number of players: " + numberOfPlayers);
+        logger.info("Received number of players: {}", numberOfPlayers);
         String gameType = packet.getGameType();
-        System.out.println("Received game type: " + gameType);
+        logger.info("Received game type: {}", gameType);
 
         validateGameType(gameType);
         GameServer.setGameType(gameType);
@@ -213,65 +289,11 @@ public class ClientHandler implements Runnable {
         transmitMessage("Game settings applied: " + numberOfPlayers + " players, variant: " + gameType);
     }
 
-    public boolean isPlayerTurn() {
-        return playerTurn;
+    private void handleTurnSkipPacket() {
+        GameServer.moveToNextTurn();
     }
 
-    public void setPlayerTurn(boolean playerTurn) {
-        this.playerTurn = playerTurn;
-    }
-
-    @Override
-    public void run() {
-        try {
-            setupPlayer();
-
-            synchronized (GameServer.class) {
-                GameServer.clientHandlers.add(this);
-                GameServer.players.add(this.getPlayer());
-                setupGameSettings(GameServer.clientHandlers.size());
-
-                if (GameServer.getGameType().equals("defaultWithBot")) {
-                    if (GameServer.clientHandlers.size() == GameServer.getNumberOfPlayers()) {
-                        BotPlayer botPlayer = new BotPlayer("botPlayer");
-                        GameServer.setBotPlayer(botPlayer);
-                        GameServer.players.add(botPlayer);
-                        System.out.println("Bot player added to the game");
-
-                        GameManagerSingleton.setInstance(new StandardGameManager(GameServer.getGameType(), GameServer.getNumberOfPlayers()));
-                        GameServer.broadcastMessage("The game is starting!", null);
-                        System.out.println("Players: " + GameServer.players);
-
-                        GameServer.moveToNextTurn();
-
-                        gameManager = GameManagerSingleton.getInstance();
-                        GameServer.broadcastBoardUpdate(gameManager.getBoard(), this);
-                    }
-                } else {
-                    if (GameServer.players.size() == GameServer.getNumberOfPlayers()) {
-                        GameManagerSingleton.setInstance(new StandardGameManager(GameServer.getGameType(), GameServer.getNumberOfPlayers()));
-                        GameServer.broadcastMessage("The game is starting!", null);
-
-                        GameServer.moveToNextTurn();
-
-                        gameManager = GameManagerSingleton.getInstance();
-                        GameServer.broadcastBoardUpdate(gameManager.getBoard(), this);
-                    }
-                }
-            }
-
-            while (true) {
-                ServerPacket serverPacket = (ServerPacket) objectInputStream.readObject();
-                handlePacket(serverPacket);
-                System.out.println("Received packet: " + serverPacket.getClass().getName());
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Connection lost with client: " + this.getPlayer().getUsername());
-        } finally {
-            cleanup();
-        }
-    }
-
+    // cleanup method
     private void cleanup() {
         synchronized (GameServer.class) {
             GameServer.clientHandlers.remove(this);
@@ -283,7 +305,7 @@ public class ClientHandler implements Runnable {
         try {
             clientSocket.close();
         } catch (IOException e) {
-            System.err.println("Failed to close client socket: " + this.getPlayer().getUsername());
+            logger.error("Failed to close client socket: {}", player != null ? player.getUsername() : "unknown", e);
         }
     }
 }
