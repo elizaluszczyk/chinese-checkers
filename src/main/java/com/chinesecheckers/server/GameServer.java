@@ -6,6 +6,9 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.chinesecheckers.board.ChineseCheckersBoard;
 import com.chinesecheckers.board.Move;
 import com.chinesecheckers.game.BotPlayer;
@@ -13,6 +16,9 @@ import com.chinesecheckers.interfaces.GameManager;
 import com.chinesecheckers.interfaces.Player;
 
 public class GameServer {
+    private static final Logger logger = LoggerFactory.getLogger(GameServer.class);
+    
+    // server configuration
     private final int port;
     private static int numberOfPlayers = 0;
     private static String gameType = null;
@@ -41,17 +47,17 @@ public class GameServer {
 
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Server running on port " + port);
+            logger.info("Server running on port {}", port);
 
             while (true) {
-                System.out.println("Waiting for a new player...");
+                logger.info("Waiting for a new player...");
                 Socket clientSocket = serverSocket.accept();
 
                 ClientHandler clientHandler = new ClientHandler(clientSocket);
                 new Thread(clientHandler).start();
             }
         } catch (IOException e) {
-            System.err.println("Server error: " + e.getMessage());
+            logger.error("Server error: {}", e.getMessage(), e);
         }
     }
 
@@ -79,12 +85,18 @@ public class GameServer {
 
     public static void setCurrentPlayerIndex(int index) {
         currentPlayerIndex = index;
-        System.out.println("Current player index: " + currentPlayerIndex);
+        logger.debug("Current player index: {}", currentPlayerIndex);
+    }
+
+    private static void notifyCurrentPlayer() {
+        ClientHandler currentHandler = clientHandlers.get(currentPlayerIndex);
+        logger.info("Notifying player {} that it's their turn.", currentHandler.getPlayer().getUsername());
+        currentHandler.transmitTurnUpdate("It's your turn!");
     }
 
     private static void incrementPlayerIndex() {
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
-        System.out.println("Next index " + currentPlayerIndex);
+        logger.debug("Next index {}", currentPlayerIndex);
     }
 
     public static void moveToNextTurn() {
@@ -96,13 +108,13 @@ public class GameServer {
         } 
         
         Player currentPlayer = GameServer.players.get(GameServer.currentPlayerIndex);
-        System.out.println("Current player: " + currentPlayer.getUsername());
+        logger.info("Current player: {}", currentPlayer.getUsername());
         currentPlayer.setPlayerTurn(false);
 
         incrementPlayerIndex();
 
         Player nextPlayer = GameServer.players.get(GameServer.currentPlayerIndex);
-        System.out.println("Next player: " + nextPlayer.getUsername());
+        logger.info("Next player: {}", nextPlayer.getUsername());
 
         if (nextPlayer instanceof BotPlayer) {
             moveToBotTurn(botPlayer);
@@ -113,15 +125,15 @@ public class GameServer {
     }
     
     private static void moveToBotTurn(BotPlayer botPlayer) {
-        System.out.println("It's bot turn");
+        logger.info("It's bot turn");
 
         gameManager = GameManagerSingleton.getInstance();
 
         ChineseCheckersBoard updatedBoard = gameManager.getBoard();
-        System.out.println("Updated board: " + updatedBoard);
+        logger.debug("Updated board: {}", updatedBoard);
 
         Move botMove = botPlayer.generateMove(updatedBoard);
-        System.out.println("Bot move: " + botMove);
+        logger.info("Bot move: {}", botMove);
         gameManager.applyMoveForBot(botMove);
 
         broadcastBoardUpdate(updatedBoard, null);
