@@ -13,4 +13,9 @@ public class InvalidGameSettingsPacket implements ServerPacket {
     public String getMessage() {
         return message;
     }
+
+    @Override
+    public PacketType getType() {
+        return PacketType.INVALID_GAME_SETTINGS;
+    }
 }

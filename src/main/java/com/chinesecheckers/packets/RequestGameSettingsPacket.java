@@ -19,4 +19,9 @@ public class RequestGameSettingsPacket implements ServerPacket {
     public String getGameTypeMessage() {
         return gameTypeMessage;
     }
+
+    @Override
+    public PacketType getType() {
+        return PacketType.REQUEST_GAME_SETTINGS;
+    }
 }

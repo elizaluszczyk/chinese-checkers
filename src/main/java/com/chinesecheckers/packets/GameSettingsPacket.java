@@ -19,4 +19,9 @@ public class GameSettingsPacket implements ServerPacket {
     public String getGameType() {
         return gameType;
     }
+
+    @Override
+    public PacketType getType() {
+        return PacketType.GAME_SETTINGS;
+    }
 }
