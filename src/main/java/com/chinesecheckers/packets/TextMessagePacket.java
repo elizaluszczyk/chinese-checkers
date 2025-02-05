@@ -18,4 +18,9 @@ public class TextMessagePacket implements ServerPacket {
     public PacketType getType() {
         return PacketType.TEXT_MESSAGE;
     }
+
+    @Override
+    public PacketType getType() {
+        return PacketType.TEXT_MESSAGE;
+    }
 }
