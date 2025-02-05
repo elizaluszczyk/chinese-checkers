@@ -11,9 +11,11 @@ import org.slf4j.LoggerFactory;
 
 import com.chinesecheckers.board.ChineseCheckersBoard;
 import com.chinesecheckers.board.Move;
+import com.chinesecheckers.exceptions.UnknownPacketException;
 import com.chinesecheckers.game.BotPlayer;
 import com.chinesecheckers.interfaces.GameManager;
 import com.chinesecheckers.interfaces.Player;
+import com.chinesecheckers.packets.PacketType;
 
 public class GameServer {
     private static final Logger logger = LoggerFactory.getLogger(GameServer.class);
@@ -102,10 +104,10 @@ public class GameServer {
         logger.debug("Current player index: {}", currentPlayerIndex);
     }
 
-    private static void notifyCurrentPlayer() {
+    private static void notifyCurrentPlayer() throws UnknownPacketException {
         ClientHandler currentHandler = clientHandlers.get(currentPlayerIndex);
         logger.info("Notifying player {} that it's their turn.", currentHandler.getPlayer().getUsername());
-        currentHandler.transmitTurnUpdate("It's your turn!");
+        currentHandler.transmit(PacketType.TURN_UPDATE, "It's your turn!");
     }
 
     private static void incrementPlayerIndex() {
@@ -113,7 +115,7 @@ public class GameServer {
         logger.debug("Next index {}", currentPlayerIndex);
     }
 
-    public static void moveToNextTurn() {
+    public static void moveToNextTurn() throws UnknownPacketException {
         Random random = new Random();
         int randomIndex = random.nextInt(players.size());
 
@@ -138,7 +140,7 @@ public class GameServer {
         }
     }
     
-    private static void moveToBotTurn(BotPlayer botPlayer) {
+    private static void moveToBotTurn(BotPlayer botPlayer) throws UnknownPacketException {
         logger.info("It's bot turn");
 
         gameManager = GameManagerSingleton.getInstance();
@@ -162,21 +164,21 @@ public class GameServer {
     }
 
     // communication methods
-    public static synchronized void broadcastMessage(String message, ClientHandler sender) {
+    public static synchronized void broadcastMessage(String message, ClientHandler sender) throws UnknownPacketException {
         String formattedMessage = (sender != null && sender.getPlayer() != null)
                 ? sender.getPlayer().getUsername() + ": " + message
                 : message;
 
         for (ClientHandler client : clientHandlers) {
             if (client != sender) {
-                client.transmitMessage(formattedMessage);
+                client.transmit(PacketType.TEXT_MESSAGE, formattedMessage);
             }
         }
     }
 
-    public static synchronized void broadcastBoardUpdate(ChineseCheckersBoard board, ClientHandler sender) {
+    public static synchronized void broadcastBoardUpdate(ChineseCheckersBoard board, ClientHandler sender) throws UnknownPacketException {
         for (ClientHandler client : clientHandlers) {
-            client.transmitBoardUpdate(board);
+            client.transmit(PacketType.BOARD_UPDATE, board);
         }
     }
 }
