@@ -199,20 +199,14 @@ public class ClientHandler implements Runnable {
     }
 
     // packet handling methods
-    private void handlePacket(ServerPacket packet) {
-        if (packet instanceof TextMessagePacket textMessagePacket) {
-            handleTextMessage(textMessagePacket);
-        } else if (packet instanceof MovePacket movePacket) {
-            handleMove(movePacket);
-        } else if (packet instanceof UsernamePacket usernamePacket) {
-            handleUsername(usernamePacket);
-        } else if (packet instanceof GameSettingsPacket gameSettingsPacket) {
-            handleGameSettings(gameSettingsPacket);
-        } else if (packet instanceof TurnSkipPacket) {
-            handleTurnSkipPacket();
-        } else {
-            logger.warn("Unknown packet type received: {}", packet.getClass().getName());
-        }
+    private void handlePacket(ServerPacket packet) throws UnknownPacketException {
+    switch (packet.getType()) {
+        case TEXT_MESSAGE -> handleTextMessage((TextMessagePacket) packet);
+        case MOVE -> handleMove((MovePacket) packet);
+        case USERNAME -> handleUsername((UsernamePacket) packet);
+        case GAME_SETTINGS -> handleGameSettings((GameSettingsPacket) packet);
+        case TURN_SKIP -> handleTurnSkipPacket();
+        default -> throw new UnknownPacketException("Unknown or unhandled packet type: " + packet.getType());
     }
 }
 
