@@ -223,7 +223,7 @@ public class GameClient {
     }
 
     private void handleTextMessage(TextMessagePacket packet) {
-        String message = packet.getMessageString();
+        String message = packet.getMessage();
         System.out.println("Received text message: " + message);
     }
 

@@ -214,7 +214,7 @@ public class ClientHandler implements Runnable {
     }
 
     private void handleTextMessage(TextMessagePacket packet) throws UnknownPacketException {
-        String message = packet.getMessageString();
+        String message = packet.getMessage();
         logger.info("Received text message: {}", message);
         GameServer.broadcastMessage(message, this);
     }
