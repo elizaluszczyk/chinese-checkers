@@ -39,9 +39,4 @@ public class BoardUpdatePacket implements ServerPacket {
     public PacketType getType() {
         return PacketType.BOARD_UPDATE;
     }
-
-    @Override
-    public PacketType getType() {
-        return PacketType.BOARD_UPDATE;
-    }
 }
