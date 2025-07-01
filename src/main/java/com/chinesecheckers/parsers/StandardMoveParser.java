@@ -3,9 +3,16 @@ package com.chinesecheckers.parsers;
 import com.chinesecheckers.board.Move;
 import com.chinesecheckers.exceptions.InvalidMoveException;
 import com.chinesecheckers.interfaces.MoveParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StandardMoveParser implements MoveParser {
-
+    
+    private static final Logger logger = LoggerFactory.getLogger(StandardMoveParser.class);
+    private static final String MOVE_COMMAND = "MOVE";
+    private static final String TO_KEYWORD = "TO";
+    private static final String EXPECTED_FORMAT = "MOVE x1,y1 TO x2,y2";
+    
     @Override
     public Move parseMove(String message) throws InvalidMoveException {
         if (!message.startsWith("MOVE")) {
