@@ -16,7 +16,6 @@ public class BoardUpdatePacket implements ServerPacket {
             this.board.add(new ArrayList<>());
             for (Field field : row) {
                 
-                
                 String playerId = null;
 
                 if (field.isOccupied()) playerId = field.getPawn().getPlayerId();
@@ -37,15 +36,7 @@ public class BoardUpdatePacket implements ServerPacket {
     }
 
     @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        for (ArrayList<FieldData> row : board) {
-            for (FieldData field : row) {
-                builder.append(field.isActive() ? field.toString() : " ");
-            }
-            builder.append("\n");
-        }
-        builder.append("]");
-        return builder.toString();
+    public PacketType getType() {
+        return PacketType.BOARD_UPDATE;
     }
 }

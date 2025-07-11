@@ -13,4 +13,9 @@ public class RequestUsernamePacket implements ServerPacket {
     public String getMessage() {
         return message;
     }
+
+    @Override
+    public PacketType getType() {
+        return PacketType.REQUEST_USERNAME;
+    }
 }

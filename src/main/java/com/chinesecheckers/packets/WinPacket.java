@@ -13,4 +13,9 @@ public class WinPacket implements ServerPacket {
     public String getMessage() {
         return message;
     }
+
+    @Override
+    public PacketType getType() {
+        return PacketType.WIN;
+    }
 }
