@@ -1,9 +1,8 @@
-package com.chinesecheckers.gameTest;
+package com.chinesecheckers.game;
 import com.chinesecheckers.board.ChineseCheckersBoard;
 import com.chinesecheckers.board.Move;
 import com.chinesecheckers.board.Pawn;
 import com.chinesecheckers.board.StandardField;
-import com.chinesecheckers.game.StandardGameManager;
 import com.chinesecheckers.interfaces.Field;
 import com.chinesecheckers.interfaces.Player;
 import org.junit.jupiter.api.BeforeEach;
@@ -84,7 +83,6 @@ class StandardGameManagerTest {
 
     @Test
     void testApplyMove() {
-        StandardGameManager gameManager1 = new StandardGameManager("default", 2);
         Move move = new Move(12, 8, 13, 9);
         Field startField = board.getField(12,8);
         Field endField = board.getField(13,9);
