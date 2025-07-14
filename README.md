@@ -1,11 +1,17 @@
 # Chinese Checkers
 
-![Board example](images/board_example.png)
+<div style="text-align: center;">
+  <img src="images/board_example.png" width="700" />
+</div>
 
-![Username window](images/username_window.png)
+<div style="text-align: center;">
+  <img src="images/username_window.png" width="700" />
+</div>
 
-| ![Game options](images/game_options.png) | ![Game variants](images/game_variants.png) |
-|:---------------------------------------:|:---------------------------------------:|
+<div style="display: flex; justify-content: center; gap: 20px;">
+  <img src="images/game_options.png" width="300"/>
+  <img src="images/game_variants.png" width="300"/>
+</div>
 
 ## Project Description
 This repository contains a multiplayer Chinese Checkers game implemented in Java with both server and client architecture. The application allows players to join a game, send text messages, and make moves on a synchronized board. The game supports 2, 3, 4, or 6 players, including modes with a bot and a special "YinAndYang" board variant.
@@ -91,7 +97,9 @@ The project is written in Java and logically separated into the main following c
 ## Game Rules
 Chinese Checkers is a strategy board game where the goal is to move all your pieces from your triangle to the opposite triangle. Players can move to adjacent spaces or jump over other pieces (their own or opponents’) in a single turn.
 
-![Default board](images/default_board.png)
+<div style="text-align: center;">
+  <img src="images/default_board.png" width="700" />
+</div>
 
 ## Extensions
 - Graphical User Interface (GUI)
