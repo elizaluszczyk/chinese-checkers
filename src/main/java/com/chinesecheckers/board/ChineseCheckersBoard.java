@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 import com.chinesecheckers.interfaces.Board;
 import com.chinesecheckers.interfaces.Field;
-import com.chinesecheckers.interfaces.Player;
 
 public class ChineseCheckersBoard implements Board, Serializable {
     private static final long serialVersionUID = 1L;
@@ -149,24 +148,6 @@ public class ChineseCheckersBoard implements Board, Serializable {
         return armsOfStar;
     }
     
-    public void printStartingPositions() {
-        for (int i = 0; i < armsOfStar.size(); i++) {
-            System.out.println("Coordinates of arm no. " + (i + 1));
-            for (int j = 0; j < armsOfStar.get(i).size(); j++) {
-                System.out.println("pole: (" + armsOfStar.get(i).get(j).getX() + ", " + armsOfStar.get(i).get(j).getY() + " )");
-            }
-        }
-    }
-
-    public void printActiveFields() {
-        for (int i = 0; i < activeFields.size(); i++) {
-            for (int j = 0; j < activeFields.get(i).size(); j++) {
-                System.out.print("(x: " + activeFields.get(i).get(j).getX() + ", y: " + activeFields.get(i).get(j).getY() + ") ;");
-            }
-            System.out.println();
-        }
-    }
-    
     @Override
     public ArrayList<ArrayList<Field>> getBoard() {
         return board;
@@ -179,34 +160,8 @@ public class ChineseCheckersBoard implements Board, Serializable {
         }
         return null;
     }
-    
-    @Override
-    public void printBoard() {
-        for (ArrayList<Field> row : getBoard()) {
-            for (Field field : row) {
-                if (field.isActive()) {
-                    System.out.print(field.toString());
-                } else {
-                    System.out.print(" ");
-                }
-            }
-        System.out.println();
-        }
-    }
-
-    public int getHexagon() {
-        return hexagon;
-    }
 
     public ArrayList<ArrayList<Field>> getArmsOfStar() {
         return this.armsOfStar;
-    }
-    
-    public ArrayList<ArrayList<Field>> getActiveFields() {
-        return activeFields;
-    }
-
-    public ArrayList<Player> getListOfPlayers() {
-        return new ArrayList<>();  // TODO(eliza): get list of players from the board
     }
 }
