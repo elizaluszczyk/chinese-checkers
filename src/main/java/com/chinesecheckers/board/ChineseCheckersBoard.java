@@ -60,82 +60,104 @@ public class ChineseCheckersBoard implements Board, Serializable {
         }
     }
     
-    private ArrayList<ArrayList<Field>> getFieldsInArmsOfStar(ArrayList<ArrayList<Field>> board) {
-        ArrayList<Field> starArm1 = new ArrayList<>();
-        for (int y = 0; y < sizeOfHexagon - 1; y++) {
+    private ArrayList<ArrayList<Field>> createArmsOfStar() {
+        ArrayList<ArrayList<Field>> arms = new ArrayList<>();
+        
+        // arm 1 (top)
+        arms.add(collectActiveFieldsInRows(0, sizeOfHexagon - 1));
+        
+        // arm 2 (top-left)
+        arms.add(collectTopLeftArm());
+        
+        // arm 3 (bottom-left)
+        arms.add(collectBottomLeftArm());
+        
+        // arm 4 (bottom)
+        arms.add(collectActiveFieldsInRows(rows + 1 - sizeOfHexagon, rows));
+        
+        // arm 5 (bottom-right)
+        arms.add(collectBottomRightArm());
+        
+        // arm 6 (top-right)
+        arms.add(collectTopRightArm());
+        
+        return arms;
+    }
+    
+    private ArrayList<Field> collectActiveFieldsInRows(int startRow, int endRow) {
+        ArrayList<Field> fields = new ArrayList<>();
+        for (int y = startRow; y < endRow; y++) {
             for (Field field : board.get(y)) {
                 if (field.isActive()) {
-                    starArm1.add(field);
+                    fields.add(field);
                 }
             }
         }
-        armsOfStar.add(starArm1);
+        return fields;
+    }
+    
+    private ArrayList<Field> collectTopLeftArm() {
+        ArrayList<Field> arm = new ArrayList<>();
+        int inactiveStart = 0;
+        int activeEnd = 2 * sizeOfHexagon - 2;
         
-        int numberOfInactiveFields2 = 0;
-        int numberOfActiveFields2 = 2 * sizeOfHexagon - 2;
-        
-        ArrayList<Field> starArm2 = new ArrayList<>();
         for (int y = sizeOfHexagon - 1; y < (2 * sizeOfHexagon - 1); y++) {
-            for (int x = numberOfInactiveFields2; x < numberOfActiveFields2; x++) {
+            for (int x = inactiveStart; x < activeEnd; x++) {
                 if (board.get(y).get(x).isActive()) {
-                    starArm2.add(board.get(y).get(x));
+                    arm.add(board.get(y).get(x));
                 }
             }
-            numberOfActiveFields2--;
-            numberOfInactiveFields2++;
-
+            activeEnd--;
+            inactiveStart++;
         }
-        armsOfStar.add(starArm2);
+        return arm;
+    }
+    
+    private ArrayList<Field> collectBottomLeftArm() {
+        ArrayList<Field> arm = new ArrayList<>();
+        int activeEnd = 2 * sizeOfHexagon - 2;
+        int inactiveStart = 0;
         
-        int numberOfActiveFields3 = 2 * sizeOfHexagon - 2;
-        int numberOfInactiveFields3 = 0;
-        ArrayList<Field> starArm3 = new ArrayList<>();
         for (int y = (3 * sizeOfHexagon - 3); y > (2 * sizeOfHexagon - 2); y--) {
-            for (int x = numberOfInactiveFields3; x < numberOfActiveFields3; x++) {
+            for (int x = inactiveStart; x < activeEnd; x++) {
                 if (board.get(y).get(x).isActive()) {
-                    starArm3.add(board.get(y).get(x));
+                    arm.add(board.get(y).get(x));
                 }
             }
-            numberOfActiveFields3--;
-            numberOfInactiveFields3++;
+            activeEnd--;
+            inactiveStart++;
         }
-        armsOfStar.add(starArm3);
+        return arm;
+    }
+    
+    private ArrayList<Field> collectBottomRightArm() {
+        ArrayList<Field> arm = new ArrayList<>();
+        int inactiveStart = 0;
         
-        ArrayList<Field> starArm4 = new ArrayList<>();
-        for (int y = rows + 1 - sizeOfHexagon; y < rows; y++) {
-            for (Field field : board.get(y)) {
-                if (field.isActive()) {
-                    starArm4.add(field);
-                }
-            }
-        }
-        armsOfStar.add(starArm4);
-        
-        int numberOfInactiveFields5 = 0;
-        ArrayList<Field> starArm5 = new ArrayList<>();
         for (int y = (3 * sizeOfHexagon - 3); y > (2 * sizeOfHexagon - 2); y--) {
-            for (int x = 4 * sizeOfHexagon + numberOfInactiveFields5 - 3; x < columns; x++) {
+            for (int x = 4 * sizeOfHexagon + inactiveStart - 3; x < columns; x++) {
                 if (board.get(y).get(x).isActive()) {
-                    starArm5.add(board.get(y).get(x));
+                    arm.add(board.get(y).get(x));
                 }
             }
-            numberOfInactiveFields5++;
+            inactiveStart++;
         }
-        armsOfStar.add(starArm5);
-
-        int numberOfInactiveFields6 = 0;
-        ArrayList<Field> starArm6 = new ArrayList<>();
+        return arm;
+    }
+    
+    private ArrayList<Field> collectTopRightArm() {
+        ArrayList<Field> arm = new ArrayList<>();
+        int inactiveStart = 0;
+        
         for (int y = sizeOfHexagon - 1; y < (2 * sizeOfHexagon - 1); y++) {
-            for (int x = 4 * sizeOfHexagon - 3 + numberOfInactiveFields6; x < columns; x++) {
+            for (int x = 4 * sizeOfHexagon - 3 + inactiveStart; x < columns; x++) {
                 if (board.get(y).get(x).isActive()) {
-                    starArm6.add(board.get(y).get(x));
+                    arm.add(board.get(y).get(x));
                 }
             }
-            numberOfInactiveFields6++;
+            inactiveStart++;
         }
-        armsOfStar.add(starArm6);
-        
-        return armsOfStar;
+        return arm;
     }
     
     @Override
