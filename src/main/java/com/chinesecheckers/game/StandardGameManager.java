@@ -71,8 +71,8 @@ public class StandardGameManager implements GameManager {
 
     @Override
     public void applyMoveForBot(Move move) {
-        Field startField = board.getField(move.getStartY(), move.getStartX());
-        Field endField = board.getField(move.getEndY(), move.getEndX());
+        Field startField = board.getField(move.getStartX(), move.getStartY());
+        Field endField = board.getField(move.getEndX(), move.getEndY());
 
         Pawn movingPawn = startField.getPawn(); 
         if (movingPawn != null) {

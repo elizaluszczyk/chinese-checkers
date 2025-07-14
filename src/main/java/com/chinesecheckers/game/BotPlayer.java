@@ -53,12 +53,12 @@ public class BotPlayer extends GamePlayer {
             if (!bestPawnMoves.isEmpty()) {
                 bestPawnMoves.sort((m1, m2) -> {
                     double d1 = calculateDistance(
-                        board.getField(m1.getStartY(), m1.getStartX()),
-                        board.getField(m1.getEndY(), m1.getEndX())
+                        board.getField(m1.getStartX(), m1.getStartY()),
+                        board.getField(m1.getEndX(), m1.getEndY())
                     );
                     double d2 = calculateDistance(
-                        board.getField(m2.getStartY(), m2.getStartX()),
-                        board.getField(m2.getEndY(), m2.getEndX())
+                        board.getField(m2.getStartX(), m2.getStartY()),
+                        board.getField(m2.getEndX(), m2.getEndY())
                     );
                     return Double.compare(d2, d1);
                 });
@@ -73,12 +73,12 @@ public class BotPlayer extends GamePlayer {
 
         candidateMoves.sort((m1, m2) -> {
             double d1 = calculateDistance(
-                board.getField(m1.getStartY(), m1.getStartX()),
-                board.getField(m1.getEndY(), m1.getEndX())
+                board.getField(m1.getStartX(), m1.getStartY()),
+                board.getField(m1.getEndX(), m1.getEndY())
             );
             double d2 = calculateDistance(
-                board.getField(m2.getStartY(), m2.getStartX()),
-                board.getField(m2.getEndY(), m2.getEndX())
+                board.getField(m2.getStartX(), m2.getStartY()),
+                board.getField(m2.getEndX(), m2.getEndY())
             );
             return Double.compare(d2, d1); 
         });
@@ -94,7 +94,7 @@ public class BotPlayer extends GamePlayer {
             Move move = moves.get(i);
             double baseWeight = moves.size() - i; 
             
-            Field startField = board.getField(move.getStartY(), move.getStartX());
+            Field startField = board.getField(move.getStartX(), move.getStartY());
             boolean isInTarget = this.getTargetPositions().stream()
                     .anyMatch(t -> t.getX() == startField.getX() && t.getY() == startField.getY());
     

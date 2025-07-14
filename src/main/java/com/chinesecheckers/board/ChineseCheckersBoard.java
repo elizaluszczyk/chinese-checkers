@@ -31,7 +31,7 @@ public class ChineseCheckersBoard implements Board, Serializable {
         for (int y = 0; y < rows; y++) {
             ArrayList<Field> row = new ArrayList<>();
             for (int x = 0; x < columns; x++) {
-                row.add(new StandardField(x, y));
+                row.add(new StandardField(y, x));
             }
             board.add(row);
         }
@@ -174,8 +174,8 @@ public class ChineseCheckersBoard implements Board, Serializable {
     
     @Override
     public Field getField(int x, int y) {
-        if (x >= 0 && x < board.size() && y >= 0 && y < board.get(x).size()) {
-            return board.get(x).get(y);
+        if (y >= 0 && y < board.size() && x >= 0 && x < board.get(y).size()) {
+            return board.get(y).get(x);
         }
         return null;
     }
