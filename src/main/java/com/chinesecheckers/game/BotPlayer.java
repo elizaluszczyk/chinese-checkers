@@ -33,7 +33,7 @@ public class BotPlayer extends GamePlayer {
             ArrayList<Move> bestPawnMoves = new ArrayList<>();
 
             for (Move move : pawnMoves) {
-                Field targetField = board.getField(move.getEndY(), move.getEndX());
+                Field targetField = board.getField(move.getEndX(), move.getEndY());
                 if (targetField == null) continue;
 
                 double currentMinDistance = this.getTargetPositions().stream()
@@ -131,7 +131,7 @@ public class BotPlayer extends GamePlayer {
             int targetX = field.getX() + direction[0];
             int targetY = field.getY() + direction[1];
 
-            Field targetField = board.getField(targetY, targetX);
+            Field targetField = board.getField(targetX, targetY);
             if (targetField != null && targetField.isActive() && !targetField.isOccupied()) {
                 moves.add(new Move(field.getX(), field.getY(), targetX, targetY));
             }
@@ -150,12 +150,12 @@ public class BotPlayer extends GamePlayer {
             int targetX = field.getX() + direction[0];
             int targetY = field.getY() + direction[1];
 
-            Field targetField = board.getField(targetY, targetX);
+            Field targetField = board.getField(targetX, targetY);
             if (targetField != null && targetField.isActive() && !targetField.isOccupied()) {
                 int midX = (field.getX() + targetX) / 2;
                 int midY = (field.getY() + targetY) / 2;
 
-                Field middleField = board.getField(midY, midX);
+                Field middleField = board.getField(midX, midY);
                 if (middleField != null && middleField.isOccupied() && middleField.isActive()) {
                     jumpMoves.add(new Move(field.getX(), field.getY(), targetX, targetY));
                 }

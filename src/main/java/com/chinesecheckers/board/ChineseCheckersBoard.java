@@ -30,7 +30,7 @@ public class ChineseCheckersBoard implements Board, Serializable {
         for (int y = 0; y < rows; y++) {
             ArrayList<Field> row = new ArrayList<>();
             for (int x = 0; x < columns; x++) {
-                row.add(new StandardField(y, x)); // FIXME
+                row.add(new StandardField(x, y));
             }
             board.add(row);
         }
