@@ -13,53 +13,39 @@ public class DefaultBoardWithBotPlayer extends DefaultBoardWithPlacedPawns {
     
     @Override
     public void setStartingAndTargetPositions(int numberOfPlayers) {
-        if (listOfPlayers.size() < numberOfPlayers) {
+        if (listOfPlayers.size() < numberOfPlayers || !listOfPlayers.contains(botPlayer)) {
             return;
         }
 
-        if (listOfPlayers.contains(botPlayer)) {
-            switch (numberOfPlayers) {
-                case 1 -> {
-                    listOfPlayers.get(0).setStartingPositions(getArmsOfStar().get(0));
-                    listOfPlayers.get(0).setTargetPositions(getArmsOfStar().get(3));
-                    botPlayer.setStartingPositions(getArmsOfStar().get(3));
-                    botPlayer.setTargetPositions(getArmsOfStar().get(0));
-                }
-                case 2 -> {
-                    listOfPlayers.get(0).setStartingPositions(getArmsOfStar().get(0));
-                    listOfPlayers.get(0).setTargetPositions(getArmsOfStar().get(3));
-                    listOfPlayers.get(1).setStartingPositions(getArmsOfStar().get(2));
-                    listOfPlayers.get(1).setTargetPositions(getArmsOfStar().get(5));
-                    botPlayer.setStartingPositions(getArmsOfStar().get(4));
-                    botPlayer.setTargetPositions(getArmsOfStar().get(1));
-                }
-                case 3 -> {
-                    listOfPlayers.get(0).setStartingPositions(getArmsOfStar().get(0));
-                    listOfPlayers.get(0).setTargetPositions(getArmsOfStar().get(3));
-                    listOfPlayers.get(1).setStartingPositions(getArmsOfStar().get(2));
-                    listOfPlayers.get(1).setTargetPositions(getArmsOfStar().get(5));
-                    listOfPlayers.get(2).setStartingPositions(getArmsOfStar().get(4));
-                    listOfPlayers.get(2).setTargetPositions(getArmsOfStar().get(1));
-                    botPlayer.setStartingPositions(getArmsOfStar().get(1));
-                    botPlayer.setTargetPositions(getArmsOfStar().get(4));
-                }
-                case 5 -> {
-                    listOfPlayers.get(0).setStartingPositions(getArmsOfStar().get(0));
-                    listOfPlayers.get(0).setTargetPositions(getArmsOfStar().get(3));
-                    listOfPlayers.get(1).setStartingPositions(getArmsOfStar().get(1));
-                    listOfPlayers.get(1).setTargetPositions(getArmsOfStar().get(4));
-                    listOfPlayers.get(2).setStartingPositions(getArmsOfStar().get(2));
-                    listOfPlayers.get(2).setTargetPositions(getArmsOfStar().get(5));
-                    listOfPlayers.get(3).setStartingPositions(getArmsOfStar().get(3));
-                    listOfPlayers.get(3).setTargetPositions(getArmsOfStar().get(0));
-                    listOfPlayers.get(4).setStartingPositions(getArmsOfStar().get(4));
-                    listOfPlayers.get(4).setTargetPositions(getArmsOfStar().get(1));
-                    botPlayer.setStartingPositions(getArmsOfStar().get(5));
-                    botPlayer.setTargetPositions(getArmsOfStar().get(2));
-                }  
-                default -> throw new IllegalArgumentException("Invalid number of players for bot: " + numberOfPlayers);
+        switch (numberOfPlayers) {
+            case 1 -> {
+                setPositions(0, 0, 3);
+                setBotPositions(3, 0);
             }
+            case 2 -> {
+                setPositions(0, 0, 3);
+                setPositions(1, 2, 5);
+                setBotPositions(4, 1);
+            }
+            case 3 -> {
+                setPositions(0, 0, 3);
+                setPositions(1, 2, 5);
+                setPositions(2, 4, 1);
+                setBotPositions(1, 4);
+            }
+            case 5 -> {
+                for (int i = 0; i < 5; i++) {
+                    setPositions(i, i, (i + 3) % 6);
+                }
+                setBotPositions(5, 2);
+            }
+            default -> throw new IllegalArgumentException("Invalid number of players for bot: " + numberOfPlayers);
         }
+    }
+
+    protected void setBotPositions(int startArmIndex, int targetArmIndex) {
+        botPlayer.setStartingPositions(getArmsOfStar().get(startArmIndex));
+        botPlayer.setTargetPositions(getArmsOfStar().get(targetArmIndex));
     }
 
     public BotPlayer getBotPlayer() {
