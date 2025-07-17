@@ -173,6 +173,7 @@ public class ChineseCheckersBoard implements Board, Serializable {
         return null;
     }
 
+    @Override
     public ArrayList<ArrayList<Field>> getArmsOfStar() {
         return this.armsOfStar;
     }
