@@ -122,11 +122,11 @@ public class GameServer {
         if (GameServer.currentPlayerIndex == null) {
             GameServer.setCurrentPlayerIndex(randomIndex);
         } 
-        
-        Player currentPlayer = GameServer.players.get(GameServer.currentPlayerIndex);
-        logger.info("Current player: {}", currentPlayer.getUsername());
-        currentPlayer.setPlayerTurn(false);
 
+        for (Player p : players) {
+            p.setPlayerTurn(false);
+        }
+        
         incrementPlayerIndex();
 
         Player nextPlayer = GameServer.players.get(GameServer.currentPlayerIndex);
