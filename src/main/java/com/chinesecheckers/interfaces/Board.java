@@ -5,5 +5,5 @@ import java.util.ArrayList;
 public interface Board {
     ArrayList<ArrayList<Field>> getBoard();
     Field getField(int x, int y);
-    void printBoard();
+    ArrayList<ArrayList<Field>> getArmsOfStar();
 }

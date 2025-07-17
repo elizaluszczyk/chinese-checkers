@@ -16,16 +16,20 @@ public class DefaultBoardWithPlacedPawns extends ChineseCheckersBoard {
     
     public void placePawns() {
         for (Player player : listOfPlayers) {
-            if (!player.getPawns().isEmpty()) {
-                continue; 
+            if (player.getPawns().isEmpty()) {
+                placePlayerPawns(player);
             }
-            
-            for (int i = 0; i < player.getStartingPositions().size(); i++) {
-                Pawn pawn = new Pawn(player.getUsername(), (Field) player.getStartingPositions().get(i), i);
-                player.getPawns().add(pawn);
-                player.getStartingPositions().get(i).setPawn(pawn);
-                player.getStartingPositions().get(i).setOccupied(true);
-            }
+        }
+    }
+    
+    private void placePlayerPawns(Player player) {
+        ArrayList<Field> startingPositions = player.getStartingPositions();
+        for (int i = 0; i < startingPositions.size(); i++) {
+            Field field = startingPositions.get(i);
+            Pawn pawn = new Pawn(player.getUsername(), field, i);
+            player.getPawns().add(pawn);
+            field.setPawn(pawn);
+            field.setOccupied(true);
         }
     }
     
@@ -34,49 +38,34 @@ public class DefaultBoardWithPlacedPawns extends ChineseCheckersBoard {
         
         switch (numberOfPlayers) {
             case 2 -> {
-                listOfPlayers.get(0).setStartingPositions(getArmsOfStar().get(0));
-                listOfPlayers.get(0).setTargetPositions(getArmsOfStar().get(3));
-                listOfPlayers.get(1).setStartingPositions(getArmsOfStar().get(3));
-                listOfPlayers.get(1).setTargetPositions(getArmsOfStar().get(0));
+                setPositions(0, 0, 3);
+                setPositions(1, 3, 0);
             }
             case 3 -> {
-                listOfPlayers.get(0).setStartingPositions(getArmsOfStar().get(0));
-                listOfPlayers.get(0).setTargetPositions(getArmsOfStar().get(3));
-                listOfPlayers.get(1).setStartingPositions(getArmsOfStar().get(2));
-                listOfPlayers.get(1).setTargetPositions(getArmsOfStar().get(5));
-                listOfPlayers.get(2).setStartingPositions(getArmsOfStar().get(4));
-                listOfPlayers.get(2).setTargetPositions(getArmsOfStar().get(1));
+                setPositions(0, 0, 3);
+                setPositions(1, 2, 5);
+                setPositions(2, 4, 1);
             }
             case 4 -> {
-                listOfPlayers.get(0).setStartingPositions(getArmsOfStar().get(1));
-                listOfPlayers.get(0).setTargetPositions(getArmsOfStar().get(4));
-                listOfPlayers.get(1).setStartingPositions(getArmsOfStar().get(2));
-                listOfPlayers.get(1).setTargetPositions(getArmsOfStar().get(5));
-                listOfPlayers.get(2).setStartingPositions(getArmsOfStar().get(4));
-                listOfPlayers.get(2).setTargetPositions(getArmsOfStar().get(1));
-                listOfPlayers.get(3).setStartingPositions(getArmsOfStar().get(5));
-                listOfPlayers.get(3).setTargetPositions(getArmsOfStar().get(2));
+                setPositions(0, 1, 4);
+                setPositions(1, 2, 5);
+                setPositions(2, 4, 1);
+                setPositions(3, 5, 2);
             }
             case 6 -> {
-                listOfPlayers.get(0).setStartingPositions(getArmsOfStar().get(0));
-                listOfPlayers.get(0).setTargetPositions(getArmsOfStar().get(3));
-                listOfPlayers.get(1).setStartingPositions(getArmsOfStar().get(1));
-                listOfPlayers.get(1).setTargetPositions(getArmsOfStar().get(4));
-                listOfPlayers.get(2).setStartingPositions(getArmsOfStar().get(2));
-                listOfPlayers.get(2).setTargetPositions(getArmsOfStar().get(5));
-                listOfPlayers.get(3).setStartingPositions(getArmsOfStar().get(3));
-                listOfPlayers.get(3).setTargetPositions(getArmsOfStar().get(0));
-                listOfPlayers.get(4).setStartingPositions(getArmsOfStar().get(4));
-                listOfPlayers.get(4).setTargetPositions(getArmsOfStar().get(1));
-                listOfPlayers.get(5).setStartingPositions(getArmsOfStar().get(5));
-                listOfPlayers.get(5).setTargetPositions(getArmsOfStar().get(2));
+                for (int i = 0; i < 6; i++) {
+                    setPositions(i, i, (i + 3) % 6);
+                }
             }
             default -> throw new IllegalArgumentException("Invalid number of players: " + numberOfPlayers);
-            }
         }
+    }
     
-    @Override
-    public ArrayList<Player> getListOfPlayers() {
-        return listOfPlayers;
+    protected void setPositions(int playerIndex, int startArmIndex, int targetArmIndex) {
+        if (playerIndex < listOfPlayers.size()) {
+            Player player = listOfPlayers.get(playerIndex);
+            player.setStartingPositions(getArmsOfStar().get(startArmIndex));
+            player.setTargetPositions(getArmsOfStar().get(targetArmIndex));
+        }
     }
 }

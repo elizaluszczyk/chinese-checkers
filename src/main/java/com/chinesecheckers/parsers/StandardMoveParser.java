@@ -58,8 +58,7 @@ public class StandardMoveParser implements MoveParser {
                 
                 logger.debug("Successfully parsed move: ({},{}) -> ({},{})", x1, y1, x2, y2);
                 
-                //FIXME
-                return new Move(y1, x1, y2, x2);
+                return new Move(x1, y1, x2, y2);
             } catch (NumberFormatException e) {
                 logger.error("Failed to parse coordinate values: {}", e.getMessage());
                 throw new InvalidMoveException("Coordinates must be valid integers.");

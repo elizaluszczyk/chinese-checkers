@@ -308,8 +308,8 @@ public class BoardController implements ClientObserver {
         }
 
         Move move = new Move(
-            clickedField.getY(), clickedField.getX(),
-            newClickedField.getY(), newClickedField.getX()
+            clickedField.getX(), clickedField.getY(),
+            newClickedField.getX(), newClickedField.getY()
         );
         
         emitMove(move);

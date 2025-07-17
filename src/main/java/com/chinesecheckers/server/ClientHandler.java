@@ -44,7 +44,6 @@ public class ClientHandler implements Runnable {
 
     private Player player;
     private GameManager gameManager;
-    private boolean playerTurn = true;
 
     public ClientHandler(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
@@ -56,14 +55,6 @@ public class ClientHandler implements Runnable {
         return player;
     }
 
-    public boolean isPlayerTurn() {
-        return playerTurn;
-    }
-
-    public void setPlayerTurn(boolean playerTurn) {
-        this.playerTurn = playerTurn;
-    }
-
     // core lifecycle method
     @Override
     public void run() {
@@ -72,7 +63,7 @@ public class ClientHandler implements Runnable {
             
             synchronized (GameServer.class) {
                 GameServer.clientHandlers.add(this);
-                GameServer.players.add(this.getPlayer());
+                GameServer.players.add(player);
                 setupGameSettings(GameServer.clientHandlers.size());
 
                 if (GameServer.getGameType().equals(GAME_TYPE_DEFAULT_WITH_BOT)) {
@@ -225,16 +216,16 @@ public class ClientHandler implements Runnable {
 
         gameManager = GameManagerSingleton.getInstance();
 
-        if (!isPlayerTurn()) {
+        if (!player.isPlayerTurn()) {
             transmit(PacketType.MOVE, move);
             return;
         }
 
-        if (GameServer.getPlayersWhoWon().contains(this.getPlayer().getUsername())) {
+        if (GameServer.getPlayersWhoWon().contains(player.getUsername())) {
             return;
         }
         
-        if (gameManager.isMoveValid(move, this.getPlayer())) {
+        if (gameManager.isMoveValid(move, player)) {
             processValidMove(move);
         } else {
             transmit(PacketType.INVALID_MOVE, move);
@@ -248,10 +239,10 @@ public class ClientHandler implements Runnable {
         ChineseCheckersBoard updatedBoard = gameManager.getBoard();
         GameServer.broadcastBoardUpdate(updatedBoard, this);
 
-        if (gameManager.isWinningMove(this.getPlayer())) {
+        if (gameManager.isWinningMove(player)) {
             transmit(PacketType.WIN, "You win! End of the game");
-            GameServer.broadcastMessage("Player " + this.getPlayer().getUsername() + " won! End of the game", this);
-            GameServer.addWinner(this.getPlayer().getUsername());
+            GameServer.broadcastMessage("Player " + player.getUsername() + " won! End of the game", this);
+            GameServer.addWinner(player.getUsername());
         }
 
         GameServer.moveToNextTurn();
@@ -287,7 +278,7 @@ public class ClientHandler implements Runnable {
     private void cleanup() throws UnknownPacketException {
         synchronized (GameServer.class) {
             GameServer.clientHandlers.remove(this);
-            GameServer.players.remove(this.getPlayer());
+            GameServer.players.remove(player);
             if (player != null) {
                 GameServer.broadcastMessage(player.getUsername() + " has left the game.", null);
             }

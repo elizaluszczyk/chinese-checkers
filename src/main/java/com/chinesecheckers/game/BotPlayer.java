@@ -33,7 +33,7 @@ public class BotPlayer extends GamePlayer {
             ArrayList<Move> bestPawnMoves = new ArrayList<>();
 
             for (Move move : pawnMoves) {
-                Field targetField = board.getField(move.getEndY(), move.getEndX());
+                Field targetField = board.getField(move.getEndX(), move.getEndY());
                 if (targetField == null) continue;
 
                 double currentMinDistance = this.getTargetPositions().stream()
@@ -53,12 +53,12 @@ public class BotPlayer extends GamePlayer {
             if (!bestPawnMoves.isEmpty()) {
                 bestPawnMoves.sort((m1, m2) -> {
                     double d1 = calculateDistance(
-                        board.getField(m1.getStartY(), m1.getStartX()),
-                        board.getField(m1.getEndY(), m1.getEndX())
+                        board.getField(m1.getStartX(), m1.getStartY()),
+                        board.getField(m1.getEndX(), m1.getEndY())
                     );
                     double d2 = calculateDistance(
-                        board.getField(m2.getStartY(), m2.getStartX()),
-                        board.getField(m2.getEndY(), m2.getEndX())
+                        board.getField(m2.getStartX(), m2.getStartY()),
+                        board.getField(m2.getEndX(), m2.getEndY())
                     );
                     return Double.compare(d2, d1);
                 });
@@ -73,12 +73,12 @@ public class BotPlayer extends GamePlayer {
 
         candidateMoves.sort((m1, m2) -> {
             double d1 = calculateDistance(
-                board.getField(m1.getStartY(), m1.getStartX()),
-                board.getField(m1.getEndY(), m1.getEndX())
+                board.getField(m1.getStartX(), m1.getStartY()),
+                board.getField(m1.getEndX(), m1.getEndY())
             );
             double d2 = calculateDistance(
-                board.getField(m2.getStartY(), m2.getStartX()),
-                board.getField(m2.getEndY(), m2.getEndX())
+                board.getField(m2.getStartX(), m2.getStartY()),
+                board.getField(m2.getEndX(), m2.getEndY())
             );
             return Double.compare(d2, d1); 
         });
@@ -94,7 +94,7 @@ public class BotPlayer extends GamePlayer {
             Move move = moves.get(i);
             double baseWeight = moves.size() - i; 
             
-            Field startField = board.getField(move.getStartY(), move.getStartX());
+            Field startField = board.getField(move.getStartX(), move.getStartY());
             boolean isInTarget = this.getTargetPositions().stream()
                     .anyMatch(t -> t.getX() == startField.getX() && t.getY() == startField.getY());
     
@@ -131,7 +131,7 @@ public class BotPlayer extends GamePlayer {
             int targetX = field.getX() + direction[0];
             int targetY = field.getY() + direction[1];
 
-            Field targetField = board.getField(targetY, targetX);
+            Field targetField = board.getField(targetX, targetY);
             if (targetField != null && targetField.isActive() && !targetField.isOccupied()) {
                 moves.add(new Move(field.getX(), field.getY(), targetX, targetY));
             }
@@ -150,12 +150,12 @@ public class BotPlayer extends GamePlayer {
             int targetX = field.getX() + direction[0];
             int targetY = field.getY() + direction[1];
 
-            Field targetField = board.getField(targetY, targetX);
+            Field targetField = board.getField(targetX, targetY);
             if (targetField != null && targetField.isActive() && !targetField.isOccupied()) {
                 int midX = (field.getX() + targetX) / 2;
                 int midY = (field.getY() + targetY) / 2;
 
-                Field middleField = board.getField(midY, midX);
+                Field middleField = board.getField(midX, midY);
                 if (middleField != null && middleField.isOccupied() && middleField.isActive()) {
                     jumpMoves.add(new Move(field.getX(), field.getY(), targetX, targetY));
                 }
