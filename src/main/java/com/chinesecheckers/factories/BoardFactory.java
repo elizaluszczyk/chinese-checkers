@@ -9,35 +9,35 @@ import com.chinesecheckers.game.GameType;
 import com.chinesecheckers.server.GameServer;
 
 public class BoardFactory {
-    public static ChineseCheckersBoard createBoard(String gameTypeString, int numberOfPlayers) {
-        GameType gameType = GameType.fromString(gameTypeString);
-        
-        switch (gameType) {
-            case YINANDYANG -> {
-                YinAndYangBoard board = new YinAndYangBoard(numberOfPlayers);
-                board.setStartingAndTargetPositions(numberOfPlayers);
-                board.placePawns();
+  public static ChineseCheckersBoard createBoard(String gameTypeString, int numberOfPlayers) {
+    GameType gameType = GameType.fromString(gameTypeString);
 
-                return board;
-            }
-            case DEFAULT -> {
-                DefaultBoardWithPlacedPawns board = new DefaultBoardWithPlacedPawns(numberOfPlayers);
-                board.setStartingAndTargetPositions(numberOfPlayers);
-                board.placePawns();
+    switch (gameType) {
+      case YINANDYANG -> {
+        YinAndYangBoard board = new YinAndYangBoard(numberOfPlayers);
+        board.setStartingAndTargetPositions(numberOfPlayers);
+        board.placePawns();
 
-                return board;
-            }
-            case DEFAULTWITHBOT -> {
-                BotPlayer botPlayer = GameServer.getBotPlayer();
+        return board;
+      }
+      case DEFAULT -> {
+        DefaultBoardWithPlacedPawns board = new DefaultBoardWithPlacedPawns(numberOfPlayers);
+        board.setStartingAndTargetPositions(numberOfPlayers);
+        board.placePawns();
 
-                DefaultBoardWithBotPlayer board = new DefaultBoardWithBotPlayer(numberOfPlayers, botPlayer);
-                board.setStartingAndTargetPositions(numberOfPlayers);
-                board.placePawns();
+        return board;
+      }
+      case DEFAULTWITHBOT -> {
+        BotPlayer botPlayer = GameServer.getBotPlayer();
 
-                return board;
-            }
-        }
+        DefaultBoardWithBotPlayer board = new DefaultBoardWithBotPlayer(numberOfPlayers, botPlayer);
+        board.setStartingAndTargetPositions(numberOfPlayers);
+        board.placePawns();
 
-        return null;
+        return board;
+      }
     }
+
+    return null;
+  }
 }

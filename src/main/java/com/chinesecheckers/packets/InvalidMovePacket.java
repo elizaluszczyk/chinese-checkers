@@ -4,19 +4,19 @@ import com.chinesecheckers.board.Move;
 import com.chinesecheckers.server.ServerPacket;
 
 public class InvalidMovePacket implements ServerPacket {
-    private static final long serialVersionUID = 1L;
-    private final Move invalidMove;
+  private static final long serialVersionUID = 1L;
+  private final Move invalidMove;
 
-    public InvalidMovePacket(Move invalidMove) {
-        this.invalidMove = invalidMove;
-    }
+  public InvalidMovePacket(Move invalidMove) {
+    this.invalidMove = invalidMove;
+  }
 
-    public Move getInvalidMove() {
-        return invalidMove;
-    }
+  public Move getInvalidMove() {
+    return invalidMove;
+  }
 
-    @Override
-    public PacketType getType() {
-        return PacketType.INVALID_MOVE;
-    }
+  @Override
+  public PacketType getType() {
+    return PacketType.INVALID_MOVE;
+  }
 }

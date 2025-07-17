@@ -1,16 +1,16 @@
 package com.chinesecheckers.game;
 
 public enum GameType {
-    DEFAULT,
-    YINANDYANG,
-    DEFAULTWITHBOT;
+  DEFAULT,
+  YINANDYANG,
+  DEFAULTWITHBOT;
 
-    public static GameType fromString(String input) {
-        for (GameType variant : GameType.values()) {
-            if (variant.name().equalsIgnoreCase(input)) {
-                return variant;
-            }
-        }
-        return null;
+  public static GameType fromString(String input) {
+    for (GameType variant : GameType.values()) {
+      if (variant.name().equalsIgnoreCase(input)) {
+        return variant;
+      }
     }
+    return null;
+  }
 }
