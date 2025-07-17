@@ -74,7 +74,7 @@ public class StandardGameManager implements GameManager {
         Field startField = board.getField(move.getStartX(), move.getStartY());
         Field endField = board.getField(move.getEndX(), move.getEndY());
 
-        Pawn movingPawn = startField.getPawn(); 
+        Pawn movingPawn = startField.getPawn();
         if (movingPawn != null) {
             endField.setPawn(movingPawn); 
             movingPawn.setCurrentField(endField); 
